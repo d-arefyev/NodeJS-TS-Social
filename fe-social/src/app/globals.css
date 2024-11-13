@@ -9,7 +9,7 @@
   --foreground: #171717; */
   --color-accent: #0095F6;
   --color-gray: #DBDBDB;
-  --color-light-gray: #FAFAFA;
+  --color-light-gray: #f0f0f0;
   --color-dark-gray: #737373;
   --color-dark: #000000;
   --color-light: #FFFFFF;
@@ -51,6 +51,11 @@ h1, h2, h3, h4 {
   line-height: 1;
   font-weight: 600;
   color: var(--color-dark);
+}
+
+h2 {
+font-size: 20px;
+font-weight: 700;
 }
 
 a,

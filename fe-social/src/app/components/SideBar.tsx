@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -195,10 +196,12 @@ export default SideBar;
 
 
 
+
+// попытка привязать Юзернэйм к Едитпрофиль
 // "use client";
 
 // import React, { useState, useEffect } from "react";
-// import { useRouter } from "next/navigation";
+// import { useRouter } from "next/router"; // Используем useRouter
 // import { Logo } from "../atoms/Logo";
 // import {
 //   HomeIcon,
@@ -220,6 +223,7 @@ export default SideBar;
 // import ModalCreatePost from "../modal/ModalCreatePost";
 // import SideBarButton from "../atoms/SideBarButton";
 // import Image from "next/image";
+// import { LogoutIcon, LogoutIconHover } from "../atoms/LogoutIcon";
 
 // interface SideBarProps {
 //   openOverlay: () => void;
@@ -227,48 +231,65 @@ export default SideBar;
 // }
 
 // const SideBar: React.FC<SideBarProps> = ({ openOverlay, closeOverlay }) => {
-//   const router = useRouter();
+//   const [isClient, setIsClient] = useState(false); // Флаг, чтобы убедиться, что код выполняется на клиенте
 //   const [isSubMenuVisible, setSubMenuVisible] = useState<string | null>(null);
 //   const [isModalVisible, setModalVisible] = useState(false);
 //   const [activeButton, setActiveButton] = useState<string>("home");
 //   const [userProfile, setUserProfile] = useState<{ username: string; profile_image: string } | null>(null);
 
-//   // Извлекаем данные пользователя из localStorage
+//   const router = useRouter(); // Здесь используем useRouter, как обычно
+
+//   // Отложенная инициализация состояния для клиента
 //   useEffect(() => {
-//     const storedUser = localStorage.getItem("user");
-//     if (storedUser) {
-//       const user = JSON.parse(storedUser);
-//       setUserProfile({ username: user.username, profile_image: user.profile_image });
-//     }
+//     setIsClient(true); // Обновляем состояние после первого рендера на клиенте
 //   }, []);
 
+//   // Проверка на клиенте перед рендером
+//   if (!isClient) return null; // Рендерим компонент только на клиенте
+
+//   // Обработчики кликов
 //   const handleHomeClick = () => {
 //     setActiveButton("home");
 //     router.push("/home");
 //   };
+
 //   const handleSearchClick = () => {
 //     setActiveButton("search");
 //     toggleSubMenu("search");
 //     openOverlay();
 //   };
+
 //   const handleExploreClick = () => {
 //     setActiveButton("explore");
 //     router.push("/explore");
 //   };
+
 //   const handleMessagesClick = () => {
 //     setActiveButton("messages");
 //     toggleSubMenu("messages");
 //     openOverlay();
 //   };
+
 //   const handleNotificationsClick = () => {
 //     setActiveButton("notifications");
 //     toggleSubMenu("notifications");
 //     openOverlay();
 //   };
+
 //   const handleCreateClick = () => setModalVisible(true);
+
 //   const handleProfileClick = () => {
 //     setActiveButton("profile");
 //     router.push("/profile");
+//   };
+
+//   const handleLogout = () => {
+//     // Удаляем данные пользователя и токен из localStorage
+//     localStorage.removeItem("user");
+//     localStorage.removeItem("authToken");
+
+//     // Перенаправляем на страницу входа
+//     router.push("/login");
 //   };
 
 //   const toggleSubMenu = (menu: string) => {
@@ -295,7 +316,7 @@ export default SideBar;
 //           onClick={handleSearchClick}
 //           isActive={activeButton === "search"}
 //         />
-//         {isSubMenuVisible === "search" && <SubMenuSearch onClose={() => {setSubMenuVisible(null); closeOverlay();}} />}
+//         {isSubMenuVisible === "search" && <SubMenuSearch onClose={() => { setSubMenuVisible(null); closeOverlay(); }} />}
 
 //         <SideBarButton
 //           label="Explore"
@@ -312,7 +333,7 @@ export default SideBar;
 //           onClick={handleMessagesClick}
 //           isActive={activeButton === "messages"}
 //         />
-//         {isSubMenuVisible === "messages" && <SubMenuMessages onClose={() => {setSubMenuVisible(null); closeOverlay();}} />}
+//         {isSubMenuVisible === "messages" && <SubMenuMessages onClose={() => { setSubMenuVisible(null); closeOverlay(); }} />}
 
 //         <SideBarButton
 //           label="Notifications"
@@ -321,7 +342,7 @@ export default SideBar;
 //           onClick={handleNotificationsClick}
 //           isActive={activeButton === "notifications"}
 //         />
-//         {isSubMenuVisible === "notifications" && <SubMenuNotifications onClose={() => {setSubMenuVisible(null); closeOverlay();}} />}
+//         {isSubMenuVisible === "notifications" && <SubMenuNotifications onClose={() => { setSubMenuVisible(null); closeOverlay(); }} />}
 
 //         <SideBarButton
 //           label="Create"
@@ -331,6 +352,8 @@ export default SideBar;
 //         />
 //         {isModalVisible && <ModalCreatePost onClose={() => setModalVisible(false)} profileImage={""} username={""} />}
 //       </div>
+
+//       {/* Профиль */}
 //       <div className="mt-[50px]">
 //         <SideBarButton
 //           label={userProfile?.username || "Profile"}
@@ -356,6 +379,14 @@ export default SideBar;
 //           isActive={activeButton === "profile"}
 //         />
 //       </div>
+
+//       {/* Кнопка Logout */}
+//       <SideBarButton
+//         label="Logout"
+//         Icon={<LogoutIcon />}
+//         HoverIcon={<LogoutIconHover />}
+//         onClick={handleLogout}
+//       />
 //     </div>
 //   );
 // };

@@ -19,15 +19,6 @@ export const getUserPosts = async (req, res) => {
     res.status(500).json({ error: 'Ошибка при получении постов' });
   }
 };
-// Получение всех постов
-export const getAllPosts = async (req, res) => {
-  try {
-    const posts = await Post.find();
-    res.status(200).json(posts);
-  } catch (error) {
-    res.status(500).json({ error: 'Ошибка при получении постов' });
-  }
-};
 
 // Создание нового поста
 export const createPost = async (req, res) => {
@@ -45,8 +36,7 @@ export const createPost = async (req, res) => {
       if (error) {
         return res.status(500).json({ message: 'Ошибка загрузки' })
       }
-      image_url = result.secure_url
-
+      image_url = result.secure_url;
 
       const user = await User.findById(userId);
       if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
@@ -129,5 +119,15 @@ export const updatePost = async (req, res) => {
     res.status(200).json(post);
   } catch (error) {
     res.status(500).json({ error: 'Ошибка при обновлении поста' });
+  }
+};
+
+// Получение всех постов
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await Post.find({}).populate('user_id', 'username profile_image');
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json({ error: 'Ошибка при получении всех постов' });
   }
 };

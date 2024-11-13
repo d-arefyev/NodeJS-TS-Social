@@ -5,7 +5,7 @@ import NoMoreUpdates from "../atoms/NoMoreUpdates";
 
 export const HomePage = () => {
   return (
-    <div className="globalContainer flex flex-col items-center pt-[60px]">
+    <div className="globalContainer flex flex-col items-center py-[50px]">
       <PostsList />
       <NoMoreUpdates />
     </div>

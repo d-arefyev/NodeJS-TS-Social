@@ -144,19 +144,19 @@ const ModalCreatePost: React.FC<ModalCreatePostProps> = ({
             {/* Avatar and Cancel Button */}
             <div className="flex items-center w-full p-[16px]">
               <div className="relative w-[36px] h-[36px]">
+              <Image
+                  src={userProfile?.profile_image || "/default-avatar.png"}
+                  alt="Profile Avatar"
+                  width={36}
+                  height={36}
+                  className="absolute inset-0 w-[30px] h-[30px] m-auto border bg-color-gray rounded-full"
+                />
                 <Image
                   src="/ava-frame.png"
                   alt="Avatar frame"
-                  width={36}
-                  height={36}
+                  width={38}
+                  height={38}
                   className="w-full h-full"
-                />
-                <Image
-                  src={userProfile?.profile_image || "/default-avatar.png"}
-                  alt="Profile Avatar"
-                  width={24}
-                  height={24}
-                  className="absolute inset-0 w-[26px] h-[26px] m-auto border bg-color-gray rounded-full"
                 />
               </div>
               <span className="text-[14px] font-semibold ml-[10px]">

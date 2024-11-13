@@ -1,181 +1,185 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { $api } from "../api/api";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import useUser from "../hooks/useUser";
+import ProfileLinkIcon from "../atoms/ProfileLinkIcon";
 
-const EditProfile = () => {
-  const [username, setUsername] = useState<string>("");
-  const [bio, setBio] = useState<string>("");
-  const [website, setWebsite] = useState<string>("");
-  const [profileImageUrl, setProfileImageUrl] = useState<string>("/default-profile.png");
-  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
-  const [error, setError] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+const EditProfile: React.FC = () => {
+  const { isLoading, userData, updateUserProfile, error } = useUser();
+  const [username, setUsername] = useState("");
+  const [bio, setBio] = useState("");
+  const [website, setWebsite] = useState(""); // Храним website
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>("");
+
   const router = useRouter();
 
-  // Загрузка данных профиля из localStorage или с сервера
+  // Загружаем данные профиля из localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      setUsername(userData.username);
-      setBio(userData.bio);
-      setWebsite(userData.website || "");
-      setProfileImageUrl(userData.profile_image || "/default-profile.png");
-    } else {
-      getUserProfile();
+      const user = JSON.parse(storedUser);
+      setUsername(user.username || "");
+      setBio(user.bio || "");
+      setWebsite(user.website || "");
+      setImagePreview(user.profile_image || "");
     }
   }, []);
 
-  // Функция получения данных профиля с сервера
-  const getUserProfile = async () => {
-    try {
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        setError("User ID not found");
-        return;
+  // Загружаем превью изображения при изменении файла
+  useEffect(() => {
+    if (profileImage) {
+      const objectUrl = URL.createObjectURL(profileImage);
+      setImagePreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  }, [profileImage]);
+
+  // Обработчик изменения изображения
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImage(file); // Обновляем состояние с выбранным изображением
+    }
+  };
+
+  // Обработчик сохранения данных
+  const handleSave = async () => {
+    if (username && bio) {
+      try {
+        const updatedData = await updateUserProfile(
+          username,
+          bio,
+          website,
+          profileImage
+        );
+
+        if (updatedData) {
+          // Сохраняем обновленные данные в localStorage
+          const userWithWebsite = {
+            ...updatedData,
+            website,
+          };
+
+          localStorage.setItem("user", JSON.stringify(userWithWebsite)); // Сохраняем в localStorage
+          router.push("/profile"); // Редирект на страницу профиля
+        }
+      } catch (err) {
+        console.error("Error updating profile:", err);
       }
-
-      const response = await $api.get(`/user/${userId}`);
-      const userData = response.data;
-      setUsername(userData.username);
-      setBio(userData.bio);
-      setWebsite(userData.website || "");
-      setProfileImageUrl(userData.profile_image || "/default-profile.png");
-      localStorage.setItem("user", JSON.stringify(userData));
-    } catch (error) {
-      setError("Не удалось загрузить профиль");
-      console.error("Ошибка получения профиля:", error);
+    } else {
+      alert("Please fill in all fields.");
     }
   };
 
-  // Обработчик загрузки изображения
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProfileImageUrl(reader.result as string); // Отображаем превью изображения
-    };
-    reader.readAsDataURL(file);
-
-    setProfileImageFile(file); // Сохраняем файл для отправки на сервер
-  };
-
-  // Функция обработки отправки формы для обновления профиля
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    // Создаем объект FormData для отправки данных
-    const formData = new FormData();
-    formData.append("username", username);
-    formData.append("bio", bio);
-    formData.append("website", website);
-    if (profileImageFile) {
-      formData.append("profile_image", profileImageFile); // Добавляем файл, если он выбран
-    }
-
-    try {
-      const response = await $api.put("/user/current", formData, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data", // Указываем, что это multipart форма
-        },
-      });
-
-      if (response.status === 200) {
-        // Обновление данных в localStorage и UI
-        localStorage.setItem("user", JSON.stringify(response.data));
-        router.refresh(); // Перезагрузка страницы или данных
-      } else {
-        setError("Ошибка обновления профиля");
-      }
-    } catch (error) {
-      console.error("Ошибка при обновлении профиля:", error);
-      setError("Ошибка обновления профиля");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return <div>Loading...</div>; // Показываем индикатор загрузки
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h3 className="text-2xl font-semibold mb-6 text-center">Редактировать профиль</h3>
+    <div className="globalContainer max-w-[610px] pt-[50px] pb-[117px] flex justify-center">
+      <div className="w-[700px] flex flex-col">
+        <h2 className="mb-6">Edit Profile</h2>
 
-      {/* Аватар и имя пользователя */}
-      <div className="flex items-center gap-4 mb-6 bg-gray-100 p-4 rounded-lg">
-        <img
-          src={profileImageUrl}
-          alt="Profile"
-          className="w-16 h-16 rounded-full object-cover border border-gray-300"
-        />
-        <div>
-          <p className="text-lg font-semibold">{username}</p>
+        <div className="flex justify-between items-center gap-[16px] h-[88px] bg-color-light-gray rounded-[20px] p-[16px] mt-[40px]">
+          {/* аватар и загрузка фото */}
+          <div className="flex items-center gap-[16px] pr-[16px]">
+            <div className="w-[56px] min-w-[56px] h-[56px]">
+              <img
+                src={imagePreview || "/default-avatar.png"} // Показываем превью изображения
+                alt="Profile Avatar"
+                className="w-full h-full m-auto border bg-color-gray rounded-full"
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold">{username}</span>
+              <span className="text-[14px] text-color-dark-gray leading-5 line-clamp-2">
+                {bio}
+              </span>
+            </div>
+          </div>
+          <div className="relative inline-block">
+            {/* Скрытый input для загрузки изображения */}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+              id="fileInput"
+            />
+            {/* Кнопка для загрузки изображения */}
+            <label
+              htmlFor="fileInput"
+              className="whitespace-nowrap text-[14px] font-semibold bg-color-accent hover:bg-color-dark text-white px-[16px] py-[8px] rounded-[8px] cursor-pointer transition-all"
+            >
+              New photo
+            </label>
+          </div>
         </div>
+
+        {/* Форма для редактирования данных профиля */}
+        <div className="flex flex-col w-full gap-[20px] mt-[33px]">
+          {/* Заголовок и редактируемый инпут для username */}
+          <div className="flex flex-col w-full gap-[7px]">
+            <label className="font-semibold" htmlFor="username">
+              Username
+            </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)} // Обновляем состояние при изменении
+              className="text-[14px] text-color-dark-gray p-[10px] border border-color-gray rounded-[12px]"
+            />
+          </div>
+
+          {/* Заголовок и редактируемый инпут для website */}
+          <div className="flex flex-col w-full gap-[7px]">
+            <label className="font-semibold" htmlFor="website">
+              Website
+            </label>
+            <div className="flex items-center text-[14px] p-[10px] border border-color-gray rounded-[12px] ">
+              <ProfileLinkIcon />
+              <input
+                id="website"
+                type="text"
+                value={website} // Привязываем значение
+                onChange={(e) => setWebsite(e.target.value)} // Обновляем состояние
+                className="ml-2 w-full text-[#00376B]"
+              />
+            </div>
+          </div>
+          {/* Заголовок и редактируемый текстареа для bio */}
+          <div className="relative flex flex-col w-full gap-[7px]">
+            <label className="font-semibold" htmlFor="bio">
+              About
+            </label>
+            <textarea
+              id="bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)} // Обновляем состояние
+              maxLength={150}
+              className="text-[14px] text-color-dark-gray p-[10px] border border-color-gray rounded-[12px] resize-none h-[66px]"
+            ></textarea>
+            <span className="absolute right-2 bottom-2 text-[12px] text-color-dark-gray">
+              {bio.length}/150
+            </span>
+          </div>
+
+          {/* Кнопка сохранения */}
+          <button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="w-[268px] px-[100px] py-[7px] rounded-[8px] self-start text-[14px] font-semibold text-color-light bg-color-accent hover:bg-color-dark  hover:text-color-light mt-[67px]"
+          >
+            {isLoading ? "Saving..." : "Save"}
+          </button>
+        </div>
+        {error && <div className="text-red-500 mt-4">{error}</div>}
       </div>
-
-      {/* Компонент загрузки изображения */}
-      <div className="mb-6">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="block w-full text-sm text-gray-500 file:py-2 file:px-4 file:border file:border-gray-300 file:rounded-md file:bg-gray-50 file:text-gray-700 file:hover:bg-gray-100"
-        />
-      </div>
-
-      {/* Форма для обновления данных профиля */}
-      <form onSubmit={handleUpdateProfile} className="flex flex-col gap-4 mt-4">
-        <div>
-          <label className="block font-medium text-gray-700">Имя пользователя</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium text-gray-700">Веб-сайт</label>
-          <input
-            type="text"
-            value={website}
-            onChange={(e) => setWebsite(e.target.value)}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium text-gray-700">О себе</label>
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            maxLength={150}
-            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Расскажите о себе"
-          />
-          <p className="text-right text-gray-500 text-sm">{bio.length} / 150</p>
-        </div>
-
-        {error && <p className="text-red-500 text-center">{error}</p>}
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition mt-4"
-        >
-          {isLoading ? "Сохранение..." : "Сохранить"}
-        </button>
-      </form>
     </div>
   );
 };
 
 export default EditProfile;
-

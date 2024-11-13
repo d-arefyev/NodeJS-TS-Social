@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { v2 as cloudinary } from 'cloudinary';
@@ -10,19 +11,14 @@ import likeRoutes from './routes/likeRoutes.js';
 import followRoutes from './routes/followRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 
-// Настройка Cloudinary Andrey
-// cloudinary.config({
-//     cloud_name: 'dc9xg0zud',
-//     api_key: '158937964864549',
-//     api_secret: 'mTRUTCe_tL02UhG1X2z71ap6kDk'
-// })
 
-// Настройка Cloudinary Denis
+dotenv.config()
+// Настройка Cloudinary
 cloudinary.config({
-    cloud_name: 'dts0qhqwh',
-    api_key: '388115639224338',
-    api_secret: 'wsFmZkS78A5DRfFRhPY2DyUbdlo'
-});
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
 // Инициализация приложения Express
 const app = express();

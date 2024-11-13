@@ -1,12 +1,10 @@
-// // src/app/profile/page.tsx
-
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { $api } from "../api/api";
-import Profile from "../profile/Profile";
 import Image from "next/image";
-// import NoMoreUpdates from "../atoms/NoMoreUpdates";
+import { $api } from "../api/api";
+import Profile from "../profile/Profile"; // Обновленный импорт
+// import NoMoreUpdates from "../atoms/NoMoreUpdates"; // Если нужно, оставьте
 
 const ProfilePage = ({ params }: { params: { userId: string } }) => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -29,10 +27,10 @@ const ProfilePage = ({ params }: { params: { userId: string } }) => {
   }, [params.userId]);
 
   return (
-    <div className="globalContainer flex flex-col max-w-[975px] py-[60px]">
+    <div className="globalContainer flex flex-col max-w-[975px] py-[50px]">
       {/* Профиль пользователя */}
       <div className="flex self-start">
-        <Profile userId={params.userId} />
+        <Profile userId={params.userId} /> {/* Передаем userId в компонент Profile */}
       </div>
 
       {/* Сетка постов */}
@@ -44,13 +42,12 @@ const ProfilePage = ({ params }: { params: { userId: string } }) => {
             {posts.map((post) => (
               <div key={post._id} className="w-full relative">
                 <div className="w-full h-0 pb-[100%] relative">
-                  {" "}
                   <Image
                     src={post.image_url}
                     alt="Post Image"
                     layout="fill"
                     objectFit="cover"
-                    className="absolute top-0 left-0"
+                    className="absolute top-0 left-0 rounded-[4px]"
                   />
                 </div>
               </div>

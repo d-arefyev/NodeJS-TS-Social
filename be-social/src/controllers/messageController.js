@@ -2,14 +2,16 @@ import Message from '../models/messageModel.js';
 
 // Загрузка истории сообщений
 export const loadMessages = async (userId, targetUserId, socket) => {
+  // write userId, targetUserId,
+  console.log("userId", userId)
+  console.log("targetUserId", targetUserId)
   try {
     const messages = await Message.find({
       $or: [
         { sender_id: userId, receiver_id: targetUserId },
         { sender_id: targetUserId, receiver_id: userId },
       ],
-    }).sort({ created_at: 1 }); // Сортировка по времени
-
+    }).sort({ created_at: 1 }); 
     // Отправляем историю сообщений
     socket.emit('loadMessages', messages);
   } catch (error) {
@@ -31,7 +33,7 @@ export const sendMessage = async (userId, targetUserId, messageText, roomId, io)
     await message.save(); // Сохранение сообщения в базе данных
 
     // Отправляем сообщение всем пользователям в комнате
-    io.to(roomId).emit('receiveMessage', message);
+    io.emit('receiveMessage', message);
   } catch (error) {
     console.error('Ошибка при отправке сообщения:', error);
   }

@@ -1,53 +1,115 @@
-// src/hooks/useUser.ts
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { $api } from "../api/api";
 
-interface User {
+interface UserProfile {
+  _id: string;
   username: string;
   full_name: string;
   bio: string;
-  avatar?: string;
+  bio_website?: string;
+  profile_image: string;
+  posts_count: number;
+  followers_count: number;
+  following_count: number;
 }
 
-export default function useUser() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [userAvatar, setUserAvatar] = useState<string | null>(null);
+interface UseUserResult {
+  isLoading: boolean;
+  error: string | null;
+  userData: UserProfile | null;
+  allUsers: UserProfile[];
+  getUserProfile: (userId: string) => Promise<UserProfile | null>;
+  updateUserProfile: (
+    username: string,
+    bio: string,
+    bio_website: string,
+    profileImage: File | null
+  ) => Promise<UserProfile | null>;
+  getAllUsers: () => Promise<UserProfile[] | null>;
+}
 
-  useEffect(() => {
-    async function fetchUserData() {
-      try {
-        const response = await $api.get("/user/current"); // Замените на нужный путь API
-        setUser(response.data);
-        setUserAvatar(response.data.avatar || null); // Если аватар есть, то сохраняем его
-      } catch (error) {
-        setError("Ошибка при загрузке данных пользователя.");
-      } finally {
-        setIsLoading(false);
-      }
+const useUser = (): UseUserResult => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [userData, setUserData] = useState<UserProfile | null>(null);
+  const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
+
+  // Получение профиля пользователя по его ID
+  const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await $api.get(`/user/${userId}`);
+      setUserData(response.data);
+      return response.data;
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Ошибка при получении профиля");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Обновление профиля пользователя
+  const updateUserProfile = async (
+    username: string,
+    bio: string,
+    bio_website: string,
+    profileImage: File | null
+  ): Promise<UserProfile | null> => {
+    setIsLoading(true);
+    setError(null);
+
+    const formData = new FormData();
+    formData.append("username", username);
+    formData.append("bio", bio);
+    formData.append("bio_website", bio_website);
+
+    if (profileImage) {
+      formData.append("profile_image", profileImage);
     }
 
-    fetchUserData();
-  }, []);
-
-  const updateUser = async (formData: FormData) => {
     try {
-      const response = await $api.put("/user/current", formData); // Путь для обновления данных пользователя
-      setUser(response.data); // Обновляем данные пользователя
-      setUserAvatar(response.data.avatar || null); // Если был обновлен аватар
-      return true;
-    } catch (error) {
-      setError("Ошибка при обновлении данных.");
-      return false;
+      const response = await $api.put("/user/current", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setUserData(response.data);
+      return response.data;
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Ошибка при обновлении профиля");
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Получение списка всех пользователей
+  const getAllUsers = async (): Promise<UserProfile[] | null> => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await $api.get("/user");
+      setAllUsers(response.data);
+      return response.data;
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Ошибка при получении пользователей");
+      return null;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return {
-    user,
     isLoading,
     error,
-    updateUser,
-    userAvatar,
+    userData,
+    allUsers,
+    getUserProfile,
+    updateUserProfile,
+    getAllUsers,
   };
-}
+};
+
+export default useUser;

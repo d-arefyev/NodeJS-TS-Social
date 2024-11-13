@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { $api } from "../api/api";
 import Image from "next/image";
+// import ProfileImageUploader from "../molecules/ProfileImageUploder";
 
 // Тип данных для поста
 type Post = {
@@ -31,6 +32,7 @@ export const Explore = () => {
 
   return (
     <div className="globalContainer flex flex-col max-w-[975px] py-[60px]">
+      {/* <ProfileImageUploader /> */}
       <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-[4px]">
         {posts.length > 0 ? (
           posts.map((item: Post, index: number) => (
@@ -42,14 +44,14 @@ export const Explore = () => {
                     ? "row-span-2"
                     : "h-[316px]"
                 }
-                w-full relative aspect-w-1 aspect-h-1
+                w-full relative aspect-w-1 aspect-h-1 
               `}
             >
               <Image
                 src={item.image_url}
                 alt="Post Image"
                 layout="fill"
-                className="object-cover"
+                className="object-cover rounded-[4px]"
               />
             </div>
           ))
