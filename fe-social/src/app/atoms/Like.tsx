@@ -11,17 +11,17 @@ interface LikeProps {
 }
 
 const Like: React.FC<LikeProps> = ({ postId, userId, onLikesCountChange }) => {
-  const [liked, setLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [liked, setLiked] = useState(false); // Состояние лайка
+  const [likesCount, setLikesCount] = useState(0); // Количество лайков
+  const [isLoading, setIsLoading] = useState(false); // Статус загрузки
 
   // Первоначальная загрузка данных
   useEffect(() => {
     const fetchLikesData = async () => {
       try {
         const response = await $api.get(`/likes/${postId}/likes`);
-        setLikesCount(response.data.likesCount); // инициализация счетчика
-        setLiked(response.data.likedByUser); // инициализация состояния
+        setLikesCount(response.data.likesCount); // Инициализируем количество лайков
+        setLiked(response.data.likedByUser); // Инициализируем состояние лайка
       } catch (error) {
         console.error("Ошибка при получении данных о лайках:", error);
       }
@@ -30,36 +30,33 @@ const Like: React.FC<LikeProps> = ({ postId, userId, onLikesCountChange }) => {
     fetchLikesData();
   }, [postId]);
 
-  // Функция для переключения состояния лайка
+  // Обработчик клика на иконку лайка
   const handleLikeToggle = async () => {
-    if (isLoading) return; // Предотвращаем повторные клики во время запроса
+    if (isLoading) return; // Предотвращаем повторный клик
     setIsLoading(true);
 
     try {
-      // Определение URL и метода запроса
       const url = liked
         ? `/likes/${postId}/unlike/${userId}`
         : `/likes/${postId}/like/${userId}`;
       const method = liked ? "delete" : "post";
 
-      // Выполняем запрос на сервер
       const response = await $api({ method, url });
 
       if (response.status === 200 || response.status === 201) {
-        // Обновляем локальные состояния только после успешного ответа от сервера
         const newLikedState = !liked;
         const newLikesCount = newLikedState ? likesCount + 1 : likesCount - 1;
 
-        setLiked(newLikedState);
-        setLikesCount(newLikesCount);
-        onLikesCountChange(newLikesCount); // обновляем счетчик родительского компонента
+        setLiked(newLikedState); // Обновляем состояние лайка
+        setLikesCount(newLikesCount); // Обновляем количество лайков
+        onLikesCountChange(newLikesCount); // Обновляем счетчик в родительском компоненте
       } else {
         console.error("Ошибка изменения состояния лайка:", response.status);
       }
     } catch (error) {
       console.error("Ошибка при переключении состояния лайка:", error);
     } finally {
-      setIsLoading(false); // Разблокируем клики
+      setIsLoading(false);
     }
   };
 
@@ -70,7 +67,7 @@ const Like: React.FC<LikeProps> = ({ postId, userId, onLikesCountChange }) => {
       ) : (
         <LikeIcon liked={liked} onClick={handleLikeToggle} />
       )}
-      {/* <span>{likesCount}</span> */}
+      <span>{likesCount}</span>
     </div>
   );
 };

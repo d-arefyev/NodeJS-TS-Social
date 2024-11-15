@@ -11,8 +11,8 @@ interface UseFollowResponse {
   following: FollowUserResponse[] | null;
   loading: boolean;
   error: string | null;
-  followUser: (targetUserId: string) => void;
-  unfollowUser: (targetUserId: string) => void;
+  followUser: (targetUserId: string) => Promise<void>;
+  unfollowUser: (targetUserId: string) => Promise<void>;
 }
 
 const useFollow = (userId: string, token: string): UseFollowResponse => {
@@ -35,7 +35,7 @@ const useFollow = (userId: string, token: string): UseFollowResponse => {
 
       setFollowers(response.data);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Ошибка при загрузке подписчиков');
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ const useFollow = (userId: string, token: string): UseFollowResponse => {
 
       setFollowing(response.data);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Ошибка при загрузке подписок');
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ const useFollow = (userId: string, token: string): UseFollowResponse => {
     setError(null);
 
     try {
-      const response = await $api.post(
+      await $api.post(
         `/follow/${userId}/follow/${targetUserId}`,
         {},
         {
@@ -77,11 +77,16 @@ const useFollow = (userId: string, token: string): UseFollowResponse => {
         }
       );
 
-      // Обновляем список подписок и подписчиков
-      getFollowers();
-      getFollowing();
+      // После успешной подписки, обновляем локальные состояния
+      setFollowing((prevFollowing) => 
+        prevFollowing ? [...prevFollowing, { id: targetUserId, username: 'Username'}] : [{ id: targetUserId, username: 'Username'}]
+      );
+      setFollowers((prevFollowers) => 
+        prevFollowers ? [...prevFollowers, { id: targetUserId, username: 'Username'}] : [{ id: targetUserId, username: 'Username'}]
+      );
+
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Ошибка при подписке');
     } finally {
       setLoading(false);
     }
@@ -93,7 +98,7 @@ const useFollow = (userId: string, token: string): UseFollowResponse => {
     setError(null);
 
     try {
-      const response = await $api.delete(
+      await $api.delete(
         `/follow/${userId}/unfollow/${targetUserId}`,
         {
           headers: {
@@ -102,11 +107,16 @@ const useFollow = (userId: string, token: string): UseFollowResponse => {
         }
       );
 
-      // Обновляем список подписок и подписчиков
-      getFollowers();
-      getFollowing();
+      // После успешной отписки, обновляем локальные состояния
+      setFollowing((prevFollowing) =>
+        prevFollowing ? prevFollowing.filter(user => user.id !== targetUserId) : []
+      );
+      setFollowers((prevFollowers) =>
+        prevFollowers ? prevFollowers.filter(user => user.id !== targetUserId) : []
+      );
+
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Ошибка при отписке');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { $api } from '../api/api'; // Используем импортированный экземпляр API
+import { $api } from '../api/api';
 
 type User = {
   _id: string;

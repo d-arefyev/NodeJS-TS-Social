@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ProfileLinkIcon from "../atoms/ProfileLinkIcon";
+import { FollowButton } from "../atoms/FollowButton"; 
+import { $api } from "../api/api"; 
 
 interface UserProfile {
   _id: string;
@@ -17,22 +19,29 @@ interface UserProfile {
   bio_website?: string;
 }
 
-interface ProfileProps {
-  userId: string;
+interface OtherProfileProps {
+  userId: string; // Идентификатор пользователя, чей профиль мы загружаем
 }
 
-const Profile: React.FC<ProfileProps> = ({ userId }) => {
+const OtherProfile: React.FC<OtherProfileProps> = ({ userId }) => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Загружаем данные профиля из localStorage, если они есть
+  // Загружаем данные о пользователе через API
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUserProfile(JSON.parse(storedUser)); // Сохраняем данные из localStorage
-    }
-    setIsLoading(false); // Завершаем загрузку
-  }, []);
+    const getUserProfile = async () => {
+      try {
+        const response = await $api.get(`/user/${userId}`); // API запрос для получения данных пользователя
+        setUserProfile(response.data); // Сохраняем данные пользователя
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      } finally {
+        setIsLoading(false); // Завершаем загрузку
+      }
+    };
+
+    getUserProfile();
+  }, [userId]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -61,45 +70,43 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
       {/* Информация о пользователе */}
       <div className="flex flex-col gap-[20px]">
         <div className="flex items-center gap-[24px]">
-          <span className="text-[20px]">
-            {userProfile?.username || "username"}
-          </span>
-          <Link href="/edit-profile">
-            <button className="h-[32px] px-[50px] bg-color-gray hover:bg-color-accent text-[14px] font-semibold text-color-darkor rounded-[8px] hover:text-color-light">
-              Edit profile
+          <span className="text-[20px]">{userProfile?.username || "username"}</span>
+          
+          {/* Кнопка Follow и Message */}
+          <FollowButton isFollow={false} userId={userProfile?._id || ""} targetUserId={userId} />
+          
+          <Link href={`/message/${userId}`}>
+            <button className="h-[32px] px-[50px] bg-color-accent text-white text-[14px] font-semibold rounded-[8px] hover:bg-color-darkor">
+              Message
             </button>
           </Link>
         </div>
+
+        {/* Статистика */}
         <div className="flex">
-          <span className="font-semibold mr-[6px]">
-            {userProfile?.posts_count}
-          </span>{" "}
-          <span className="mr-[40px]">posts</span>
-          <span className="font-semibold mr-[6px]">
-            {userProfile?.followers_count}
-          </span>{" "}
-          <span className="mr-[40px]">followers</span>
-          <span className="font-semibold mr-[6px]">
-            {userProfile?.following_count}
-          </span>{" "}
-          <span className="mr-[40px]">following</span>
+          <span className="font-semibold mr-[6px]">{userProfile?.posts_count}</span> posts
+          <span className="font-semibold mr-[6px]">{userProfile?.followers_count}</span> followers
+          <span className="font-semibold mr-[6px]">{userProfile?.following_count}</span> following
         </div>
+
+        {/* Биография */}
         <div className="max-w-sm">
           <span className="text-[14px] text-gcolor-gray line-clamp-3">
             {userProfile?.bio || "Write something about yourself..."}
           </span>
         </div>
+
+        {/* Сайт */}
         <div className="max-w-sm mt-2">
           <span className="text-[14px] text-gcolor-gray line-clamp-1">
-            {userProfile?.bio_website ? ( 
+            {userProfile?.bio_website ? (
               <Link
-                href={userProfile.bio_website} 
+                href={userProfile.bio_website}
                 className="text-[#00376B]"
                 target="_blank"
-                rel="noopener noreferrer" 
+                rel="noopener noreferrer"
               >
-                <span className="inline-block mr-[8px]" ><ProfileLinkIcon /></span>
-                {/* Иконка перед текстом */}
+                <span className="inline-block mr-[8px]"><ProfileLinkIcon /></span>
                 {userProfile.bio_website}
               </Link>
             ) : (
@@ -112,4 +119,4 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
   );
 };
 
-export default Profile;
+export default OtherProfile;

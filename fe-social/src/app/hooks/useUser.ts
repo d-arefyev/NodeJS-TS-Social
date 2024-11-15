@@ -1,7 +1,10 @@
+"use client"
+
 import { useState } from "react";
 import { $api } from "../api/api";
 
 interface UserProfile {
+  isFollow: boolean;
   _id: string;
   username: string;
   full_name: string;
@@ -18,6 +21,8 @@ interface UseUserResult {
   error: string | null;
   userData: UserProfile | null;
   allUsers: UserProfile[];
+  filteredUsers: UserProfile[]; // Добавляем filteredUsers в тип
+  searchUsers: (query: string) => void;
   getUserProfile: (userId: string) => Promise<UserProfile | null>;
   updateUserProfile: (
     username: string,
@@ -33,6 +38,7 @@ const useUser = (): UseUserResult => {
   const [error, setError] = useState<string | null>(null);
   const [userData, setUserData] = useState<UserProfile | null>(null);
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
 
   // Получение профиля пользователя по его ID
   const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
@@ -54,7 +60,7 @@ const useUser = (): UseUserResult => {
   const updateUserProfile = async (
     username: string,
     bio: string,
-    bio_website: string,
+    bio_website: string,  // Используем bio_website
     profileImage: File | null
   ): Promise<UserProfile | null> => {
     setIsLoading(true);
@@ -63,7 +69,7 @@ const useUser = (): UseUserResult => {
     const formData = new FormData();
     formData.append("username", username);
     formData.append("bio", bio);
-    formData.append("bio_website", bio_website);
+    formData.append("bio_website", bio_website);  // Добавляем bio_website
 
     if (profileImage) {
       formData.append("profile_image", profileImage);
@@ -92,6 +98,7 @@ const useUser = (): UseUserResult => {
     try {
       const response = await $api.get("/user");
       setAllUsers(response.data);
+      setFilteredUsers(response.data); // Сохраняем всех пользователей при первом вызове
       return response.data;
     } catch (err: any) {
       setError(err.response?.data?.message || "Ошибка при получении пользователей");
@@ -101,11 +108,25 @@ const useUser = (): UseUserResult => {
     }
   };
 
+  // Функция поиска пользователей по имени
+  const searchUsers = (query: string): void => {
+    if (!query) {
+      setFilteredUsers(allUsers); // Если пустой запрос, показываем всех пользователей
+      return;
+    }
+    const filtered = allUsers.filter(user =>
+      user.username.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+  };
+
   return {
     isLoading,
     error,
     userData,
     allUsers,
+    filteredUsers,
+    searchUsers,
     getUserProfile,
     updateUserProfile,
     getAllUsers,

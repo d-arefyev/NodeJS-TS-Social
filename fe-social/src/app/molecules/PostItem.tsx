@@ -1,4 +1,4 @@
-// PostItem.tsx
+// PostItem.tsx рабочий
 "use client";
 
 import React from "react";

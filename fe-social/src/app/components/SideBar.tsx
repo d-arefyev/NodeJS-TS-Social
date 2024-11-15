@@ -162,7 +162,7 @@ const SideBar: React.FC<SideBarProps> = ({ openOverlay, closeOverlay }) => {
               alt="Profile Avatar"
               width={24}
               height={24}
-              className="rounded-full"
+              className="rounded-full "
             />
           }
           HoverIcon={
@@ -171,7 +171,7 @@ const SideBar: React.FC<SideBarProps> = ({ openOverlay, closeOverlay }) => {
               alt="Profile Avatar Hover"
               width={24}
               height={24}
-              className="rounded-full border-[2px] border-color-dark"
+              className="rounded-full"
             />
           }
           onClick={handleProfileClick}

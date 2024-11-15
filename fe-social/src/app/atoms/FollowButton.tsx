@@ -1,5 +1,3 @@
-
-// FollowButton
 "use client";
 
 import { useState } from "react";
@@ -29,9 +27,9 @@ export const FollowButton = ({ isFollow, userId, targetUserId }: FollowButtonPro
       className="font-semibold text-color-accent hover:text-color-dark"
       onClick={handleFollow}
     >
-      {!follow ? "follow" : "unfollow"}
+      {!follow ? "Follow" : "Unfollow"}
     </button>
   );
 };
 
-export default FollowButton
+export default FollowButton;

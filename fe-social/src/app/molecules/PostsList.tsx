@@ -1,4 +1,62 @@
-// PostsList.tsx
+// "use client";
+
+// import React, { useEffect, useState } from "react";
+// import usePosts from "../hooks/usePosts";
+// import PostItem from "./PostItem";
+
+// const PostsList: React.FC<{ userId: string }> = ({ userId }) => {
+//   const { posts, loading, error, getPosts } = usePosts();
+//   const [likesCounts, setLikesCounts] = useState<{ [key: string]: number }>({});
+
+//   useEffect(() => {
+//     // Передаем userId в getPosts
+//     if (userId) {
+//       getPosts(userId);  // Тут должно быть без ошибки
+//     }
+//   }, [userId, getPosts]);
+
+//   useEffect(() => {
+//     const initialLikesCounts = posts.reduce((acc, post) => {
+//       acc[post._id] = post.likes_count || 0;
+//       return acc;
+//     }, {} as { [key: string]: number });
+//     setLikesCounts(initialLikesCounts);
+//   }, [posts]);
+
+//   const handleLikesCountChange = (postId: string, newCount: number) => {
+//     setLikesCounts((prevLikes) => ({
+//       ...prevLikes,
+//       [postId]: newCount,
+//     }));
+//   };
+
+//   if (loading) return <p>Загрузка...</p>;
+//   if (error) return <p>{error}</p>;
+
+//   return (
+//     <ul className="w-full grid gap-y-[14px] gap-x-[40px] lg:grid-cols-2 md:grid-cols-1">
+//       {posts.map((post) => (
+//         <PostItem
+//           key={post._id}
+//           item={post}
+//           isFollow={true} // Можно передать актуальное состояние подписки
+//           likesCount={likesCounts[post._id] || 0}
+//           setLikesCount={handleLikesCountChange}
+//         />
+//       ))}
+//     </ul>
+//   );
+// };
+
+// export default PostsList;
+
+
+
+
+
+
+
+// PostsList.tsx рабочий
 "use client"
 
 import React, { useEffect, useState } from "react";
@@ -7,6 +65,7 @@ import PostItem from "./PostItem";
 
 const PostsList: React.FC = () => {
   const { posts, loading, error, getPosts } = usePosts();
+  const [shuffledPosts, setShuffledPosts] = useState<any[]>([]); // Состояние для перемешанных постов
   const [likesCounts, setLikesCounts] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
@@ -14,12 +73,19 @@ const PostsList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const initialLikesCounts = posts.reduce((acc, post) => {
-      acc[post._id] = post.likes_count || 0;
-      return acc;
-    }, {} as { [key: string]: number });
-    setLikesCounts(initialLikesCounts);
-  }, [posts]);
+    if (posts.length > 0) {
+      // Перемешиваем посты, если они загружены
+      const shuffled = posts.sort(() => Math.random() - 0.5);
+      setShuffledPosts(shuffled); // Обновляем перемешанные посты
+
+      // Инициализируем likesCounts после перемешивания
+      const initialLikesCounts = shuffled.reduce((acc, post) => {
+        acc[post._id] = post.likes_count || 0;
+        return acc;
+      }, {} as { [key: string]: number });
+      setLikesCounts(initialLikesCounts); // Обновляем состояние лайков
+    }
+  }, [posts]); // Перемешиваем посты каждый раз, когда меняются `posts`
 
   const handleLikesCountChange = (postId: string, newCount: number) => {
     setLikesCounts((prevLikes) => ({
@@ -33,7 +99,7 @@ const PostsList: React.FC = () => {
 
   return (
     <ul className="w-full grid gap-y-[14px] gap-x-[40px] lg:grid-cols-2 md:grid-cols-1">
-      {posts.map((post) => (
+      {shuffledPosts.map((post) => (
         <PostItem
           key={post._id}
           item={post}
@@ -47,6 +113,7 @@ const PostsList: React.FC = () => {
 };
 
 export default PostsList;
+
 
 
 

@@ -9,7 +9,7 @@ const EditProfile: React.FC = () => {
   const { isLoading, userData, updateUserProfile, error } = useUser();
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
-  const [website, setWebsite] = useState(""); // Храним website
+  const [bioWebsite, setBioWebsite] = useState(""); // Храним bio_website вместо website
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>("");
 
@@ -22,7 +22,7 @@ const EditProfile: React.FC = () => {
       const user = JSON.parse(storedUser);
       setUsername(user.username || "");
       setBio(user.bio || "");
-      setWebsite(user.website || "");
+      setBioWebsite(user.bio_website || ""); // Устанавливаем значение bio_website
       setImagePreview(user.profile_image || "");
     }
   }, []);
@@ -48,21 +48,26 @@ const EditProfile: React.FC = () => {
   const handleSave = async () => {
     if (username && bio) {
       try {
+        // Обновление профиля с новым изображением и bio_website
         const updatedData = await updateUserProfile(
-          username,
-          bio,
-          website,
-          profileImage
+          username,    // 1-й аргумент
+          bio,         // 2-й аргумент
+          bioWebsite,  // 3-й аргумент, теперь это bio_website
+          profileImage // 4-й аргумент
         );
 
         if (updatedData) {
           // Сохраняем обновленные данные в localStorage
-          const userWithWebsite = {
+          const userWithBioWebsite = {
             ...updatedData,
-            website,
+            bio_website: bioWebsite, // Обновляем с новым значением bio_website
           };
 
-          localStorage.setItem("user", JSON.stringify(userWithWebsite)); // Сохраняем в localStorage
+          localStorage.setItem("user", JSON.stringify(userWithBioWebsite)); // Сохраняем в localStorage
+
+          // Убедимся, что `bio_website` действительно обновлен в `userWithBioWebsite`
+          console.log("Updated user data:", userWithBioWebsite);
+
           router.push("/profile"); // Редирект на страницу профиля
         }
       } catch (err) {
@@ -134,22 +139,23 @@ const EditProfile: React.FC = () => {
             />
           </div>
 
-          {/* Заголовок и редактируемый инпут для website */}
+          {/* Заголовок и редактируемый инпут для bio_website */}
           <div className="flex flex-col w-full gap-[7px]">
-            <label className="font-semibold" htmlFor="website">
+            <label className="font-semibold" htmlFor="bioWebsite">
               Website
             </label>
             <div className="flex items-center text-[14px] p-[10px] border border-color-gray rounded-[12px] ">
               <ProfileLinkIcon />
               <input
-                id="website"
+                id="bioWebsite"
                 type="text"
-                value={website} // Привязываем значение
-                onChange={(e) => setWebsite(e.target.value)} // Обновляем состояние
+                value={bioWebsite} // Привязываем значение
+                onChange={(e) => setBioWebsite(e.target.value)} // Обновляем состояние
                 className="ml-2 w-full text-[#00376B]"
               />
             </div>
           </div>
+
           {/* Заголовок и редактируемый текстареа для bio */}
           <div className="relative flex flex-col w-full gap-[7px]">
             <label className="font-semibold" htmlFor="bio">

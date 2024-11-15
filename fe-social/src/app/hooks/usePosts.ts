@@ -41,7 +41,7 @@ const usePosts = (): UsePosts => {
     setLoading(true);
     clearError();
     try {
-      const response = await $api.get("/post/all");
+      const response = await $api.get("/post/all/public");
       setPosts(response.data);
     } catch (err) {
       console.error("Ошибка при загрузке постов:", err);
@@ -145,7 +145,7 @@ const usePosts = (): UsePosts => {
     error,
     getPosts,
     getPostById,
-    getPublicPosts,  // Возвращаем новый метод
+    getPublicPosts,
     createPost,
     updatePost,
     deletePost,

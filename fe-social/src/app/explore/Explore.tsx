@@ -39,11 +39,7 @@ export const Explore = () => {
             <div
               key={item._id}
               className={`
-                ${
-                  index % 6 === 2
-                    ? "row-span-2"
-                    : "h-[316px]"
-                }
+                ${index % 6 === 2 ? "row-span-2" : "h-[316px]"}
                 w-full relative aspect-w-1 aspect-h-1 
               `}
             >
@@ -59,7 +55,6 @@ export const Explore = () => {
           <span>No Posts</span>
         )}
       </div>
-      {/* <NoMoreUpdates /> */}
     </div>
   );
 };

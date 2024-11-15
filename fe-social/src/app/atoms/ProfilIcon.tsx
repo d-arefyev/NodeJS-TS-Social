@@ -2,7 +2,7 @@
 
 import React from "react";
 
-interface IconProps {
+export default interface IconProps {
   className?: string;
 }
 
