@@ -1,4 +1,3 @@
-// src/app/edit-profile/page.tsx
 import EditProfile from "./EditProfile";
 
 const ProfilePage = () => {

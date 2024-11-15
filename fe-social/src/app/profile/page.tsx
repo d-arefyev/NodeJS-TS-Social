@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { $api } from "../api/api";
-import Profile from "../profile/Profile"; // Обновленный импорт
-// import NoMoreUpdates from "../atoms/NoMoreUpdates"; // Если нужно, оставьте
+import Profile from "../profile/Profile";
+// import NoMoreUpdates from "../atoms/NoMoreUpdates";
 
 const ProfilePage = ({ params }: { params: { userId: string } }) => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -28,12 +28,12 @@ const ProfilePage = ({ params }: { params: { userId: string } }) => {
 
   return (
     <div className="globalContainer flex flex-col max-w-[975px] py-[50px]">
-      {/* Профиль пользователя */}
+      {/* User Profile */}
       <div className="flex self-start">
         <Profile userId={params.userId} /> {/* Передаем userId в компонент Profile */}
       </div>
 
-      {/* Сетка постов */}
+      {/* PostList */}
       <div className="mt-[80px]">
         {isLoading ? (
           <div>Loading posts...</div>

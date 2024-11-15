@@ -15,6 +15,12 @@ const Like: React.FC<LikeProps> = ({ postId, userId, onLikesCountChange }) => {
   const [likesCount, setLikesCount] = useState(0); // Количество лайков
   const [isLoading, setIsLoading] = useState(false); // Статус загрузки
 
+  // Универсальная обработка ошибок
+  const handleError = (error: any, defaultMessage: string) => {
+    const errorMessage = error.response?.data?.message || error.message || defaultMessage;
+    console.error("Ошибка:", errorMessage);
+  };
+
   // Первоначальная загрузка данных
   useEffect(() => {
     const fetchLikesData = async () => {
@@ -22,8 +28,8 @@ const Like: React.FC<LikeProps> = ({ postId, userId, onLikesCountChange }) => {
         const response = await $api.get(`/likes/${postId}/likes`);
         setLikesCount(response.data.likesCount); // Инициализируем количество лайков
         setLiked(response.data.likedByUser); // Инициализируем состояние лайка
-      } catch (error) {
-        console.error("Ошибка при получении данных о лайках:", error);
+      } catch (error: any) {
+        handleError(error, "Ошибка при получении данных о лайках");
       }
     };
 
@@ -32,7 +38,7 @@ const Like: React.FC<LikeProps> = ({ postId, userId, onLikesCountChange }) => {
 
   // Обработчик клика на иконку лайка
   const handleLikeToggle = async () => {
-    if (isLoading) return; // Предотвращаем повторный клик
+    if (isLoading) return;
     setIsLoading(true);
 
     try {
@@ -53,8 +59,8 @@ const Like: React.FC<LikeProps> = ({ postId, userId, onLikesCountChange }) => {
       } else {
         console.error("Ошибка изменения состояния лайка:", response.status);
       }
-    } catch (error) {
-      console.error("Ошибка при переключении состояния лайка:", error);
+    } catch (error: any) {
+      handleError(error, "Ошибка при переключении состояния лайка");
     } finally {
       setIsLoading(false);
     }

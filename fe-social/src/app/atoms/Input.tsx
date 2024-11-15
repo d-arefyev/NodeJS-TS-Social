@@ -1,4 +1,3 @@
-// src/app/atoms/Input.tsx
 import React from "react";
 
 interface InputProps {
@@ -26,7 +25,7 @@ const Input: React.FC<InputProps> = ({
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className={`h-[38px] px-[8px] border-[1px] border-color-gray rounded-[3px] bg-color-light-gray placeholder:text-[12px] placeholder-color-dark-gray ${className}`}
+      className={`h-[38px] px-[8px] border-[1px] border-color-gray rounded-[3px] bg-color-input-gray placeholder:text-[12px] placeholder-color-dark-gray ${className}`}
       required={required}
       disabled={disabled}
     />

@@ -1,4 +1,3 @@
-// PostItem.tsx рабочий
 "use client";
 
 import React from "react";
@@ -29,7 +28,7 @@ type PostItemProps = {
 };
 
 const PostItem: React.FC<PostItemProps> = ({ item, isFollow, likesCount, setLikesCount }) => {
-  const userId = localStorage.getItem("userId") || ""; // Получаем userId из localStorage
+  const userId = localStorage.getItem("userId") || ""; // We receive userId from localStorage
 
   const handleLike = () => {
     const newLikesCount = likesCount + 1;
@@ -39,10 +38,10 @@ const PostItem: React.FC<PostItemProps> = ({ item, isFollow, likesCount, setLike
   return (
     <li className="flex flex-col max-h-[720px] text-[12px] pb-[40px] border-b-[1px] border-b-color-gray">
       <div className="flex items-center py-[6px]">
-        {/* Аватар пользователя */}
+        {/* Avatar */}
         <div className="relative w-[36px] h-[36px]">
           <Image
-            src={item.profile_image || "/default-avatar.png"} // fallback на default-avatar.png
+            src={item.profile_image || "/default-avatar.png"}
             alt="avatar"
             width={36}
             height={36}
@@ -63,12 +62,13 @@ const PostItem: React.FC<PostItemProps> = ({ item, isFollow, likesCount, setLike
           </span>
           <FollowButton
             isFollow={isFollow}
-            userId={userId} // Передаем userId для FollowButton
+            userId={userId} // Passing Userid to FollowButton
             targetUserId={item.user_id}
+            className="font-semibold text-color-accent"
           />
         </div>
       </div>
-      {/* Изображение поста */}
+      {/* Post Image */}
       <Image
         src={item.image_url}
         alt="Post Image"
@@ -78,7 +78,7 @@ const PostItem: React.FC<PostItemProps> = ({ item, isFollow, likesCount, setLike
       />
       <div className="flex flex-col my-[10px] gap-[8px]">
         <div className="flex items-center gap-[14px]">
-          {/* Лайк и комментарий */}
+          {/* Like and Comment */}
           <Like postId={item._id} userId={item.user_id} onLikesCountChange={handleLike} />
           <CommentIcon postId={item._id} />
         </div>
@@ -89,7 +89,7 @@ const PostItem: React.FC<PostItemProps> = ({ item, isFollow, likesCount, setLike
       </div>
 
       <div className="flex flex-col gap-[4px]">
-        {/* Последний комментарий и кнопка для отображения всех комментариев */}
+        {/* Last Comment */}
         <span>{item.last_comment || "Last comment"}</span>
         <span className="text-color-dark-gray">
           View all comments ({item.comments_count})

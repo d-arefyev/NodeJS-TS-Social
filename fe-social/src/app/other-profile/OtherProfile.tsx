@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { FollowButton } from "../atoms/FollowButton";
 import ProfileLinkIcon from "../atoms/ProfileLinkIcon";
-import { FollowButton } from "../atoms/FollowButton"; 
-import { $api } from "../api/api"; 
 
 interface UserProfile {
+  isFollow: boolean;
   _id: string;
   username: string;
   full_name: string;
@@ -20,36 +20,13 @@ interface UserProfile {
 }
 
 interface OtherProfileProps {
-  userId: string; // Идентификатор пользователя, чей профиль мы загружаем
+  userProfile: UserProfile;
 }
 
-const OtherProfile: React.FC<OtherProfileProps> = ({ userId }) => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // Загружаем данные о пользователе через API
-  useEffect(() => {
-    const getUserProfile = async () => {
-      try {
-        const response = await $api.get(`/user/${userId}`); // API запрос для получения данных пользователя
-        setUserProfile(response.data); // Сохраняем данные пользователя
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      } finally {
-        setIsLoading(false); // Завершаем загрузку
-      }
-    };
-
-    getUserProfile();
-  }, [userId]);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
+const OtherProfile: React.FC<OtherProfileProps> = ({ userProfile }) => {
   return (
     <div className="flex w-full lg:flex-row lg:gap-[85px] sm:flex-col sm:gap-[40px]">
-      {/* Аватар пользователя */}
+      {/* Avatar */}
       <div className="relative w-[168px] h-[168px]">
         <Image
           src="/ava-b-frame.png"
@@ -59,7 +36,7 @@ const OtherProfile: React.FC<OtherProfileProps> = ({ userId }) => {
           className="w-full h-full"
         />
         <Image
-          src={userProfile?.profile_image || "/default-avatar.png"}
+          src={userProfile.profile_image || "/default-avatar.png"}
           alt="Profile Avatar"
           width={150}
           height={150}
@@ -67,46 +44,56 @@ const OtherProfile: React.FC<OtherProfileProps> = ({ userId }) => {
         />
       </div>
 
-      {/* Информация о пользователе */}
+      {/* Bio */}
       <div className="flex flex-col gap-[20px]">
         <div className="flex items-center gap-[24px]">
-          <span className="text-[20px]">{userProfile?.username || "username"}</span>
-          
-          {/* Кнопка Follow и Message */}
-          <FollowButton isFollow={false} userId={userProfile?._id || ""} targetUserId={userId} />
-          
-          <Link href={`/message/${userId}`}>
-            <button className="h-[32px] px-[50px] bg-color-accent text-white text-[14px] font-semibold rounded-[8px] hover:bg-color-darkor">
+          <span className="text-[20px]">{userProfile.username}</span>
+          <div className="flex gap-[8px]">
+            <FollowButton
+              isFollow={userProfile.isFollow}
+              userId={userProfile._id}
+              targetUserId={userProfile._id}
+              className="py-[6px] px-[50px] bg-color-accent hover:bg-color-dark text-[14px] font-semibold text-color-light rounded-[8px] hover:text-color-light"
+            />
+            <Link
+              href={`/message/${userProfile._id}`}
+              className="py-[6px] px-[50px] bg-color-gray hover:bg-color-accent text-[14px] font-semibold text-color-darkor rounded-[8px] hover:text-color-light"
+            >
               Message
-            </button>
-          </Link>
+            </Link>
+          </div>
         </div>
-
-        {/* Статистика */}
         <div className="flex">
-          <span className="font-semibold mr-[6px]">{userProfile?.posts_count}</span> posts
-          <span className="font-semibold mr-[6px]">{userProfile?.followers_count}</span> followers
-          <span className="font-semibold mr-[6px]">{userProfile?.following_count}</span> following
+          <span className="font-semibold mr-[6px]">
+            {userProfile.posts_count}
+          </span>
+          <span className="mr-[40px]">posts</span>
+          <span className="font-semibold mr-[6px]">
+            {userProfile.followers_count}
+          </span>
+          <span className="mr-[40px]">followers</span>
+          <span className="font-semibold mr-[6px]">
+            {userProfile.following_count}
+          </span>
+          <span className="mr-[40px]">following</span>
         </div>
-
-        {/* Биография */}
         <div className="max-w-sm">
           <span className="text-[14px] text-gcolor-gray line-clamp-3">
-            {userProfile?.bio || "Write something about yourself..."}
+            {userProfile.bio || "Write something about yourself..."}
           </span>
         </div>
-
-        {/* Сайт */}
         <div className="max-w-sm mt-2">
           <span className="text-[14px] text-gcolor-gray line-clamp-1">
-            {userProfile?.bio_website ? (
+            {userProfile.bio_website ? (
               <Link
                 href={userProfile.bio_website}
                 className="text-[#00376B]"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="inline-block mr-[8px]"><ProfileLinkIcon /></span>
+                <span className="inline-block mr-[8px]">
+                  <ProfileLinkIcon />
+                </span>
                 {userProfile.bio_website}
               </Link>
             ) : (

@@ -9,7 +9,7 @@ const EditProfile: React.FC = () => {
   const { isLoading, userData, updateUserProfile, error } = useUser();
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
-  const [bioWebsite, setBioWebsite] = useState(""); // Храним bio_website вместо website
+  const [bioWebsite, setBioWebsite] = useState("");
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>("");
 
@@ -22,7 +22,7 @@ const EditProfile: React.FC = () => {
       const user = JSON.parse(storedUser);
       setUsername(user.username || "");
       setBio(user.bio || "");
-      setBioWebsite(user.bio_website || ""); // Устанавливаем значение bio_website
+      setBioWebsite(user.bio_website || ""); 
       setImagePreview(user.profile_image || "");
     }
   }, []);
@@ -40,7 +40,7 @@ const EditProfile: React.FC = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setProfileImage(file); // Обновляем состояние с выбранным изображением
+      setProfileImage(file);
     }
   };
 
@@ -50,10 +50,10 @@ const EditProfile: React.FC = () => {
       try {
         // Обновление профиля с новым изображением и bio_website
         const updatedData = await updateUserProfile(
-          username,    // 1-й аргумент
-          bio,         // 2-й аргумент
-          bioWebsite,  // 3-й аргумент, теперь это bio_website
-          profileImage // 4-й аргумент
+          username, 
+          bio,
+          bioWebsite,
+          profileImage 
         );
 
         if (updatedData) {
@@ -63,12 +63,11 @@ const EditProfile: React.FC = () => {
             bio_website: bioWebsite, // Обновляем с новым значением bio_website
           };
 
-          localStorage.setItem("user", JSON.stringify(userWithBioWebsite)); // Сохраняем в localStorage
+          localStorage.setItem("user", JSON.stringify(userWithBioWebsite));
 
-          // Убедимся, что `bio_website` действительно обновлен в `userWithBioWebsite`
           console.log("Updated user data:", userWithBioWebsite);
 
-          router.push("/profile"); // Редирект на страницу профиля
+          router.push("/profile");
         }
       } catch (err) {
         console.error("Error updating profile:", err);
@@ -79,7 +78,7 @@ const EditProfile: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>; // Показываем индикатор загрузки
+    return <div>Loading...</div>;
   }
 
   return (
@@ -92,7 +91,7 @@ const EditProfile: React.FC = () => {
           <div className="flex items-center gap-[16px] pr-[16px]">
             <div className="w-[56px] min-w-[56px] h-[56px]">
               <img
-                src={imagePreview || "/default-avatar.png"} // Показываем превью изображения
+                src={imagePreview || "/default-avatar.png"}
                 alt="Profile Avatar"
                 className="w-full h-full m-auto border bg-color-gray rounded-full"
               />
@@ -135,7 +134,7 @@ const EditProfile: React.FC = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)} // Обновляем состояние при изменении
-              className="text-[14px] text-color-dark-gray p-[10px] border border-color-gray rounded-[12px]"
+              className="text-[14px] p-[10px] border border-color-gray rounded-[12px]"
             />
           </div>
 
@@ -149,8 +148,8 @@ const EditProfile: React.FC = () => {
               <input
                 id="bioWebsite"
                 type="text"
-                value={bioWebsite} // Привязываем значение
-                onChange={(e) => setBioWebsite(e.target.value)} // Обновляем состояние
+                value={bioWebsite}
+                onChange={(e) => setBioWebsite(e.target.value)}
                 className="ml-2 w-full text-[#00376B]"
               />
             </div>
@@ -166,7 +165,7 @@ const EditProfile: React.FC = () => {
               value={bio}
               onChange={(e) => setBio(e.target.value)} // Обновляем состояние
               maxLength={150}
-              className="text-[14px] text-color-dark-gray p-[10px] border border-color-gray rounded-[12px] resize-none h-[66px]"
+              className="text-[14px] p-[10px] border border-color-gray rounded-[12px] resize-none h-[66px]"
             ></textarea>
             <span className="absolute right-2 bottom-2 text-[12px] text-color-dark-gray">
               {bio.length}/150

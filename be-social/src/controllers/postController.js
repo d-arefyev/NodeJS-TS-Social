@@ -10,15 +10,31 @@ import multer from 'multer'
 const storage = multer.memoryStorage();
 const upload = multer({ storage })
 
+// Получение всех постов пользователя (не возвращал посты по этому запросу)
+// export const getUserPosts = async (req, res) => {
+//   try {
+//     const posts = await Post.find({ user_id: getUserIdFromToken(req) });
+//     res.status(200).json(posts);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Ошибка при получении постов' });
+//   }
+// };
+
 // Получение всех постов пользователя
 export const getUserPosts = async (req, res) => {
+  const { userId } = req.query; 
   try {
-    const posts = await Post.find({ user_id: getUserIdFromToken(req) });
+    if (!userId) {
+      return res.status(400).json({ error: 'UserId is required' });
+    }
+    const posts = await Post.find({ user_id: userId });
     res.status(200).json(posts);
   } catch (error) {
     res.status(500).json({ error: 'Ошибка при получении постов' });
   }
 };
+
+
 
 // Создание нового поста
 export const createPost = async (req, res) => {

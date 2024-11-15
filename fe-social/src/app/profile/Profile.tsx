@@ -29,9 +29,9 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUserProfile(JSON.parse(storedUser)); // Сохраняем данные из localStorage
+      setUserProfile(JSON.parse(storedUser));
     }
-    setIsLoading(false); // Завершаем загрузку
+    setIsLoading(false);
   }, []);
 
   if (isLoading) {
@@ -40,7 +40,7 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
 
   return (
     <div className="flex w-full lg:flex-row lg:gap-[85px] sm:flex-col sm:gap-[40px]">
-      {/* Аватар пользователя */}
+      {/* Avatar */}
       <div className="relative w-[168px] h-[168px]">
         <Image
           src="/ava-b-frame.png"
@@ -58,14 +58,14 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
         />
       </div>
 
-      {/* Информация о пользователе */}
+      {/* Bio */}
       <div className="flex flex-col gap-[20px]">
         <div className="flex items-center gap-[24px]">
           <span className="text-[20px]">
             {userProfile?.username || "username"}
           </span>
           <Link href="/edit-profile">
-            <button className="h-[32px] px-[50px] bg-color-gray hover:bg-color-accent text-[14px] font-semibold text-color-darkor rounded-[8px] hover:text-color-light">
+            <button className="py-[6px] px-[50px] bg-color-gray hover:bg-color-accent text-[14px] font-semibold text-color-darkor rounded-[8px] hover:text-color-light">
               Edit profile
             </button>
           </Link>
@@ -99,7 +99,6 @@ const Profile: React.FC<ProfileProps> = ({ userId }) => {
                 rel="noopener noreferrer" 
               >
                 <span className="inline-block mr-[8px]" ><ProfileLinkIcon /></span>
-                {/* Иконка перед текстом */}
                 {userProfile.bio_website}
               </Link>
             ) : (

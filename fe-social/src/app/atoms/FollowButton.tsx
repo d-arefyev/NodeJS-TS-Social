@@ -7,9 +7,15 @@ type FollowButtonProps = {
   isFollow: boolean;
   userId: string;
   targetUserId: string;
+  className?: string;
 };
 
-export const FollowButton = ({ isFollow, userId, targetUserId }: FollowButtonProps) => {
+export const FollowButton = ({
+  isFollow,
+  userId,
+  targetUserId,
+  className = "",
+}: FollowButtonProps) => {
   const [follow, setFollow] = useState(isFollow);
 
   const handleFollow = () => {
@@ -24,7 +30,7 @@ export const FollowButton = ({ isFollow, userId, targetUserId }: FollowButtonPro
 
   return (
     <button
-      className="font-semibold text-color-accent hover:text-color-dark"
+    className={`${className}`}
       onClick={handleFollow}
     >
       {!follow ? "Follow" : "Unfollow"}

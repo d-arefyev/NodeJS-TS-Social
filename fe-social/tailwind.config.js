@@ -48,6 +48,7 @@ const config = {
         "color-dark": "var(--color-dark)",
         "color-light": "var(--color-light)",
         "color-link": "var(--color-links)",
+        "color-input-gray": "var(--color-input-gray)",
       },
     },
   },
