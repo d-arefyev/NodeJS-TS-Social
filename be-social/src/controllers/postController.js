@@ -20,16 +20,25 @@ const upload = multer({ storage })
 //   }
 // };
 
-// Получение всех постов пользователя
+
+
+// // // Получение всех постов стороннего пользователя, при этом свои тоже загружаются
 export const getUserPosts = async (req, res) => {
-  const { userId } = req.query; 
+  const { userId } = req.query; // Получаем userId из параметров запроса
+
   try {
-    if (!userId) {
+    // Если userId не передан, получаем посты текущего пользователя из токена
+    const effectiveUserId = userId || getUserIdFromToken(req);
+
+    if (!effectiveUserId) {
       return res.status(400).json({ error: 'UserId is required' });
     }
-    const posts = await Post.find({ user_id: userId });
+
+    // Находим посты по user_id
+    const posts = await Post.find({ user_id: effectiveUserId });
     res.status(200).json(posts);
   } catch (error) {
+    console.error("Ошибка при получении постов:", error);
     res.status(500).json({ error: 'Ошибка при получении постов' });
   }
 };

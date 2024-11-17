@@ -10,21 +10,23 @@ const ProfilePage = ({ params }: { params: { userId: string } }) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Получаем посты пользователя
-  const getPosts = async () => {
-    try {
-      const response = await $api.get(`/post/all?userId=${params.userId}`);
-      setPosts(response.data);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      setIsLoading(false);
-    }
-  };
+// Загружаем посты пользователя
+const getPosts = async () => {
+  try {
+    const response = await $api.get(`/post/all`);
+    console.log("User's posts:", response.data);
+    setPosts(response.data);
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  useEffect(() => {
-    getPosts();
-  }, [params.userId]);
+
+useEffect(() => {
+  getPosts(); // Загружаем данные при изменении userId
+}, [params.userId]);
 
   return (
     <div className="globalContainer flex flex-col max-w-[975px] py-[50px]">

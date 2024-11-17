@@ -1,16 +1,17 @@
-"use client";
+
+"use client"
 
 import React, { useEffect, useState } from "react";
 import usePosts from "../hooks/usePosts";
 import PostItem from "./PostItem";
 
 const PostsList: React.FC = () => {
-  const { posts, loading, error, getFollowPosts } = usePosts();
+  const { posts, loading, error, getPosts } = usePosts();
   const [shuffledPosts, setShuffledPosts] = useState<any[]>([]);
   const [likesCounts, setLikesCounts] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
-    getFollowPosts(); // Загружаем только посты подписок
+    getPosts();
   }, []);
 
   useEffect(() => {
@@ -57,19 +58,21 @@ export default PostsList;
 
 
 
-// "use client"
+
+// попытка реализовать показа на главной постов м подпиской
+// "use client";
 
 // import React, { useEffect, useState } from "react";
 // import usePosts from "../hooks/usePosts";
 // import PostItem from "./PostItem";
 
 // const PostsList: React.FC = () => {
-//   const { posts, loading, error, getPosts } = usePosts();
+//   const { posts, loading, error, getFollowPosts } = usePosts();
 //   const [shuffledPosts, setShuffledPosts] = useState<any[]>([]);
 //   const [likesCounts, setLikesCounts] = useState<{ [key: string]: number }>({});
 
 //   useEffect(() => {
-//     getPosts();
+//     getFollowPosts(); // Загружаем только посты подписок
 //   }, []);
 
 //   useEffect(() => {
@@ -112,3 +115,6 @@ export default PostsList;
 // };
 
 // export default PostsList;
+
+
+

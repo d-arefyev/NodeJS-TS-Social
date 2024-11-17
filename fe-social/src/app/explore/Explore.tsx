@@ -16,7 +16,7 @@ export const Explore = () => {
 
   // Получение постов
   useEffect(() => {
-    const getPosts = async () => {
+    const getPublicPosts = async () => {
       try {
         const res = await $api.get("/post/all/public");
         // Перемешиваем посты в случайном порядке перед сохранением
@@ -27,7 +27,7 @@ export const Explore = () => {
       }
     };
 
-    getPosts();
+    getPublicPosts();
   }, []);
 
   return (

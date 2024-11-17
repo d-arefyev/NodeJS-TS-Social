@@ -49,7 +49,7 @@ const usePosts = (): UsePosts => {
     setLoading(true);
     clearError();
     try {
-      const response = await $api.get("/post/all/public");
+      const response = await $api.get("/post/all/public"); // временно /public
       setPosts(response.data);
     } catch (err: any) {
       handleError(err, "Ошибка при загрузке постов");
@@ -63,7 +63,7 @@ const usePosts = (): UsePosts => {
     setLoading(true);
     clearError();
     try {
-      const response = await $api.get("/post/all");
+      const response = await $api.get("/post/all/public");
       setPosts(response.data);
     } catch (err: any) {
       handleError(err, "Ошибка при загрузке публичных постов");
