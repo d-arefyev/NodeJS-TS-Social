@@ -60,7 +60,7 @@ export const unlikePost = async (req, res) => {
 
     res.status(200).json({ message: 'Лайк удалён' });
   } catch (error) {
-    console.error("Ошибка на сервере:", error); // Логируем ошибку на сервере
+    console.error("Ошибка на сервере:", error);
     res.status(500).json({ error: 'Ошибка при удалении лайка' });
   }
 };
