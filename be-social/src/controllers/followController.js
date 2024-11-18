@@ -55,29 +55,66 @@ export const followUser = async (req, res) => {
   }
 };
 
-// Отписка от пользователя
+// // Отписка от пользователя
+// export const unfollowUser = async (req, res) => {
+//   const { userId, targetUserId } = req.params;
+
+//   try {
+//     const follow = await Follow.findOne({ follower_user_id: userId, followed_user_id: targetUserId });
+//     if (!follow) {
+//       return res.status(404).json({ error: 'Вы не подписаны на этого пользователя' });
+//     }
+
+//     await Follow.findByIdAndDelete(follow._id);
+
+//     const user = await User.findById(userId);
+//     const targetUser = await User.findById(targetUserId);
+
+//     user.following_count -= 1;
+//     targetUser.followers_count -= 1;
+
+//     await user.save();
+//     await targetUser.save();
+
+//     res.status(200).json({ message: 'Вы отписались от пользователя' });
+//   } catch (error) {
+//     res.status(500).json({ error: 'Ошибка при отписке от пользователя' });
+//   }
+// };
+
+// // Отписка от пользователя (исправлено)
 export const unfollowUser = async (req, res) => {
   const { userId, targetUserId } = req.params;
 
   try {
-    const follow = await Follow.findOne({ follower_user_id: userId, followed_user_id: targetUserId });
+    // Проверяем существование записи подписки
+    const follow = await Follow.findOne({
+      follower_user_id: userId,
+      user_id: targetUserId, // Проверка подписки от текущего пользователя на targetUser
+    });
+
     if (!follow) {
       return res.status(404).json({ error: 'Вы не подписаны на этого пользователя' });
     }
 
+    // Удаляем запись о подписке
     await Follow.findByIdAndDelete(follow._id);
 
+    // Обновляем счетчики подписок у пользователей
     const user = await User.findById(userId);
     const targetUser = await User.findById(targetUserId);
 
-    user.following_count -= 1;
-    targetUser.followers_count -= 1;
+    if (user && targetUser) {
+      user.following_count -= 1;
+      targetUser.followers_count -= 1;
 
-    await user.save();
-    await targetUser.save();
+      await user.save();
+      await targetUser.save();
+    }
 
     res.status(200).json({ message: 'Вы отписались от пользователя' });
   } catch (error) {
+    console.error('Error in unfollowUser:', error);
     res.status(500).json({ error: 'Ошибка при отписке от пользователя' });
   }
 };
