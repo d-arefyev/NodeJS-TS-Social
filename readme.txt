@@ -78,7 +78,14 @@ try {
 };
 
 
+Доустанавливал в процессе:
+npm install next@latest
+npm install react@latest react-dom@latest
+npm install typescript@latest
 
+
+для сервера:
+npm install express-validator
 
 
 

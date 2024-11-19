@@ -1,115 +1,172 @@
+
+// работает, комменты отправляются, нет аватарок комментаторов
 "use client"
 
-import React, { useEffect, useState, ChangeEvent } from 'react';
-import Image from 'next/image';
-import parseData from '../helpers/parseData'; // Утилита для парсинга даты
-import Like from '../atoms/Like'; // Ваш компонент для лайков
-import CommentIcon from '../atoms/CommentIcon'; // Ваш компонент для комментариев
-import EmojiPicker from '../components/EmojiPicker'; // Библиотека для эмодзи
-
-// Типы данных для поста и комментариев
-interface IComment {
-  _id: string;
-  user: { username: string; profile_image: string };
-  comment_text: string;
-  created_at: string;
-}
-
-interface IUserProfile {
-  _id: string;
-  username: string;
-  profile_image: string;
-}
-
-interface IPost {
-  _id: string;
-  title: string;
-  image_url: string;
-  description: string;
-  likesCount: number;
-  created_at: string;
-}
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { $api } from "../api/api";
+import ModalPostConfirm from "../modal/ModalPostConfirm";
+import Like from "../atoms/Like";
+import CommentIcon from "../atoms/CommentIcon";
+import EmojiPicker from "../components/EmojiPicker";
+import parseData from "../helpers/parseData";
 
 interface ModalPostProps {
-  post: IPost;
+  post: {
+    user_name: string;
+    username: string;
+    _id: string;
+    image_url: string;
+    caption: string;
+    created_at: string;
+  };
+  userProfile: {
+    _id: string;
+    username: string;
+    profile_image: string;
+    posts_count: number;
+  };
   onClose: () => void;
 }
 
-const ModalPost: React.FC<ModalPostProps> = ({ post, onClose }) => {
-  const [commentText, setCommentText] = useState<string>('');
+interface Comment {
+  _id: string;
+  user_id: string;
+  comment_text: string;
+  created_at: string;
+  likesCount: number;
+  user_name: string;
+  profile_image: string;
+}
+
+const ModalPost: React.FC<ModalPostProps> = ({
+  post,
+  userProfile,
+  onClose,
+}: ModalPostProps) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState<string>("");
+  const [showOptions, setShowOptions] = useState<boolean>(false);
+  const [likesCount, setLikesCount] = useState<number>(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-  const [comments, setComments] = useState<IComment[]>([]);
-  const [likesCount, setLikesCount] = useState<number>(post.likesCount || 0);
-  const [userProfile, setUserProfile] = useState<IUserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [storedUserProfile, setStoredUserProfile] = useState<any>(null);
 
+  // Загружаем данные профиля из localStorage, если они есть
   useEffect(() => {
-    const fetchCommentsData = async () => {
-      const response = await fetch(`/api/comments/${post._id}`);
-      const data: IComment[] = await response.json();
-      setComments(data);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setStoredUserProfile(parsedUser);
+      } catch (error) {
+        console.error("Ошибка при парсинге данных из localStorage:", error);
+      }
+    }
+    setIsLoading(false);
+  }, []);
+
+  // Загрузка комментариев
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await $api.get(`/comment/${post._id}`);
+        setComments(response.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Ошибка при загрузке комментариев:", error);
+        setIsLoading(false);
+      }
     };
 
-    fetchCommentsData();
-
-    const fetchUserProfile = async () => {
-      const response = await fetch('/api/user/profile');
-      const data: IUserProfile = await response.json();
-      setUserProfile(data);
-    };
-
-    fetchUserProfile();
+    fetchComments();
   }, [post._id]);
 
+  // Добавление комментария
   const handleAddComment = async () => {
-    if (!commentText) return;
+    if (!newComment.trim()) return; // Проверка на пустой комментарий
 
-    const newComment = {
-      postId: post._id,
-      userId: userProfile?._id,
-      comment_text: commentText,
-    };
-
-    const response = await fetch(`/api/comments/${post._id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newComment),
-    });
-
-    const newCommentData: IComment = await response.json();
-    setComments(prevComments => [...prevComments, newCommentData]);
-    setCommentText('');
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    const response = await fetch(`/api/comments/${post._id}?commentId=${commentId}`, {
-      method: 'DELETE',
-    });
-
-    if (response.ok) {
-      setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
+    try {
+      // Отправляем запрос на сервер
+      const response = await $api.post(`/comment/${post._id}`, {
+        userId: storedUserProfile?._id, // Используем данные из storedUserProfile
+        comment_text: newComment, // Текст комментария
+      });
+      setComments((prevComments) => [...prevComments, response.data]); // Добавляем новый комментарий в список
+      setNewComment(""); // Сбрасываем поле ввода
+    } catch (error) {
+      console.error("Ошибка при добавлении комментария:", error); // Логируем ошибку
     }
   };
 
-  const handleEmojiClick = (emoji: string) => {
-    setCommentText(prevText => prevText + emoji); 
-    setShowEmojiPicker(false);
-  };
-
-  // Обработчик клика по посту
-  const handlePostClick = () => {
-    console.log('Post clicked!');
-    // Здесь вы можете добавить логику, например, открыть модалку или перейти на страницу
-  };
+  // Если данные еще не загружены
+  if (isLoading || !storedUserProfile) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container" onClick={e => e.stopPropagation()}>
-        {/* Шапка с аватаром и информацией о посте */}
-        <div className="flex p-4 items-center justify-between">
-          <div className="flex items-center">
-            <div className="relative w-[36px] h-[36px]">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999] ml-[243.8px] px-[15px]"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white w-full max-w-[1000px] h-[722px] flex rounded-[4px] shadow-lg relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Левая часть: изображение поста */}
+        <div className="w-[60%] h-full relative">
+          <Image
+            src={post.image_url}
+            alt="Post Image"
+            layout="fill"
+            objectFit="cover"
+            className="rounded-l-[4px]"
+          />
+        </div>
+
+        {/* Правая часть: информация о посте */}
+        <div className="w-[45%] h-full flex flex-col">
+          {/* Хедер */}
+          <div className="flex items-center justify-between px-[12px] py-[10px] border-b-[1px] border-color-gray">
+            <div className="flex items-center w-full ">
+              <div className="relative min-w-[36px] min-h-[36px]">
+                <Image
+                  src={storedUserProfile.profile_image || "/default-avatar.png"}
+                  alt="Profile Avatar"
+                  width={36}
+                  height={36}
+                  className="absolute inset-0 w-[30px] h-[30px] m-auto border bg-color-gray rounded-full"
+                />
+                <Image
+                  src="/ava-frame.png"
+                  alt="Avatar frame"
+                  width={38}
+                  height={38}
+                  className="w-full h-full"
+                />
+              </div>
+              <span className="text-[14px] font-semibold ml-[10px]">
+                {post.user_name || "username"}
+              </span>
+              <button
+                onClick={() => setShowOptions(true)}
+                className="text-gray-500 hover:text-black ml-auto"
+              >
+                <Image
+                  src="/icons/ellipsis.svg"
+                  alt="Elips Icon"
+                  width={24}
+                  height={24}
+                />
+              </button>
+            </div>
+          </div>
+
+          {/* Описание и дата */}
+          <div className="flex items-start text-[12px] px-[12px] py-[10px] ">
+            <div className="relative min-w-[36px] min-h-[36px]">
               <Image
-                src={userProfile?.profile_image || '/default-avatar.png'}
+                src={storedUserProfile.profile_image || "/default-avatar.png"}
                 alt="Profile Avatar"
                 width={36}
                 height={36}
@@ -123,164 +180,109 @@ const ModalPost: React.FC<ModalPostProps> = ({ post, onClose }) => {
                 className="w-full h-full"
               />
             </div>
-            <span className="text-[14px] font-semibold ml-[10px]">
-              {userProfile?.username || 'username'}
-            </span>
-          </div>
-        </div>
-
-        {/* Основной контент поста */}
-        <div className="flex" onClick={handlePostClick}> {/* Сделаем блок кликабельным */}
-          <div className="w-2/3">
-            <img
-              src={post.image_url || '/default-post-image.png'}
-              alt="Post image"
-              className="w-full h-[350px] object-cover rounded-lg cursor-pointer"  {/* Добавляем курсор */}
-            />
-          </div>
-          <div className="w-1/3 p-4">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-lg font-semibold">{post.title}</span>
-              <span className="text-gray-500 text-sm">{parseData(post.created_at)}</span>
-            </div>
-            <p>{post.description}</p>
-            <div className="flex mt-4 gap-4">
-              <Like
-                postId={post._id}
-                userId={userProfile?._id || ''}
-                likesCount={likesCount}
-                onLikesCountChange={setLikesCount}
-              />
-              <CommentIcon postId={post._id} />
+            <div className="ml-[10px]">
+              <p className="">
+                <span className="font-semibold">{post.user_name} </span>
+                {post.caption}
+              </p>
+              <span className="text-[10px] text-color-dark-gray">
+                {parseData(post.created_at)}
+              </span>
             </div>
           </div>
-        </div>
 
-        {/* Список комментариев */}
-        <div className="comments-section mt-6">
-          <h3 className="text-lg font-semibold">Комментарии</h3>
-          {comments.map(comment => (
-            <div key={comment._id} className="comment flex items-center justify-between mb-4">
-              <div className="flex items-center">
+          {/* Список комментариев */}
+          <div className="flex-1 mt-[20px] overflow-y-auto items-start text-[12px] px-[12px] py-[10px]">
+            {comments.map((comment) => (
+              <div
+                key={comment._id}
+                className="flex items-start gap-[12px] mb-[16px]"
+              >
                 <div className="relative w-[36px] h-[36px]">
                   <Image
-                    src={comment.user.profile_image || '/default-avatar.png'}
-                    alt="Commenter Avatar"
+                    src={comment.profile_image || "/default-avatar.png"}
+                    alt="Comment Avatar"
                     width={36}
                     height={36}
-                    className="absolute inset-0 w-[30px] h-[30px] m-auto border bg-color-gray rounded-full"
+                    className="rounded-full bg-gray-200 border"
                   />
                 </div>
-                <span className="ml-2">{comment.user.username}</span>
+                <div className="flex-1">
+                  <p>{comment.comment_text}</p>
+                  <div className="flex justify-between text-[12px] text-color-dark-gray">
+                    <span>
+                      &#8226; {parseData(comment.created_at)} &#8226;{" "}
+                      <span>{comment.likesCount} likes</span>
+                    </span>
+                    <Like
+                      postId={comment._id}
+                      userId={storedUserProfile._id}
+                      likesCount={comment.likesCount}
+                      onLikesCountChange={setLikesCount}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-col items-end">
-                <p className="text-sm">{comment.comment_text}</p>
-                <span className="text-xs text-gray-500">
-                  &#8226; {parseData(comment.created_at)} &#8226;
-                  <span className="ml-2 cursor-pointer text-red-500" onClick={() => handleDeleteComment(comment._id)}>Удалить</span>
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Форма добавления комментария */}
-        <div className="add-comment mt-4">
-          <div className="relative">
-            <textarea
-              className="w-full p-3 border border-gray-300 rounded-lg"
-              rows={4}
-              placeholder="Добавьте комментарий..."
-              value={commentText}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setCommentText(e.target.value)}
+            ))}
+          </div>
+          {/* Иконки действий */}
+          <div className="mt-[20px] flex items-center gap-[14px]">
+            <Like
+              postId={post._id}
+              userId={storedUserProfile._id}
+              likesCount={likesCount}
+              onLikesCountChange={setLikesCount}
             />
+            <CommentIcon postId={post._id} />
+            <span>{likesCount} likes</span>
+          </div>
+          {/* Добавление комментария */}
+          <div className="mt-[10px] flex items-center gap-[8px] relative">
             <button
-              className="absolute top-2 right-2 text-xl"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              onClick={() => setShowEmojiPicker((prev) => !prev)}
+              className="p-[8px] border rounded-md"
             >
-              😊
+              <Image
+                src="/icons/EmojiIcon.svg"
+                alt="Emoji Icon"
+                width={24}
+                height={24}
+              />
             </button>
             {showEmojiPicker && (
-              <div className="absolute bottom-12 right-0">
-                <EmojiPicker onEmojiClick={handleEmojiClick} />
-              </div>
+              <EmojiPicker
+                onEmojiClick={function (emoji: string): void {
+                  setNewComment((prevComment) => prevComment + emoji);
+                }}
+              />
             )}
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="flex-1 border border-gray-300 rounded-md px-[10px] py-[8px]"
+            />
+            <button
+              onClick={handleAddComment}
+              disabled={!newComment.trim()}
+              className="text-blue-500"
+            >
+              Post
+            </button>
           </div>
-          <button
-            className="mt-2 w-full bg-blue-500 text-white p-2 rounded-lg"
-            onClick={handleAddComment}
-          >
-            Отправить
-          </button>
         </div>
-
-        {/* Кнопка закрытия модалки */}
-        <button
-          className="absolute top-4 right-4 text-xl text-white"
-          onClick={onClose}
-        >
-          &times;
-        </button>
       </div>
+
+      {/* Модалка действий */}
+      {showOptions && (
+        <ModalPostConfirm
+          post={post}
+          onClose={() => setShowOptions(false)}
+          userProfile={storedUserProfile} 
+        />
+      )}
     </div>
   );
 };
 
 export default ModalPost;
-
-
-
-
-
-
-// "use client";
-
-// import React from "react";
-// import Image from "next/image";
-
-// interface ModalPostProps {
-//   post: {
-//     image_url: string;
-//     caption: string;
-//     _id: string;
-//   };
-//   onClose: () => void;
-// }
-
-// const ModalPost: React.FC<ModalPostProps> = ({ post, onClose }) => {
-//   return (
-//     <div
-//       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[9999] ml-[243.8px] px-[15px]"
-//       onClick={onClose}
-//     >
-//       <div
-//         className="bg-white w-[80%] md:w-[600px] rounded-[12px] shadow-lg relative p-4 z-[10000]"
-//         onClick={(e) => e.stopPropagation()}
-//       >
-//         {/* Кнопка для закрытия */}
-//         <button
-//           onClick={onClose}
-//           className="absolute top-2 right-2 text-white bg-black rounded-full p-2"
-//         >
-//           ✕
-//         </button>
-
-//         {/* Изображение */}
-//         <div className="relative w-full h-[400px] mb-4">
-//           <Image
-//             src={post.image_url}
-//             alt="Post Image"
-//             layout="fill"
-//             objectFit="cover"
-//             className="rounded-md"
-//           />
-//         </div>
-
-//         {/* Подпись к посту */}
-//         <div className="text-lg font-semibold">{post.caption}</div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ModalPost;

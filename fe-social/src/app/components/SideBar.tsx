@@ -86,6 +86,7 @@ const SideBar: React.FC<SideBarProps> = ({ openOverlay, closeOverlay }) => {
     // Удаляем данные пользователя и токен из localStorage
     localStorage.removeItem("user");
     localStorage.removeItem("authToken");
+    localStorage.removeItem("likes");
 
     // Перенаправляем на страницу входа
     router.push("/login");
@@ -96,7 +97,7 @@ const SideBar: React.FC<SideBarProps> = ({ openOverlay, closeOverlay }) => {
   };
 
   return (
-    <div className="absolute left-0 top-0 flex flex-col min-h-[calc(100%-158px)] py-[38px] px-[12px] w-[244px] bg-color-light border-r-[1px] border-color-gray z-[10000]">
+    <div className="absolute left-0 top-0 flex flex-col min-h-[calc(100%-158px)] py-[38px] px-[12px] w-[244px] bg-color-light border-r-[1px] border-color-gray z-[9999]">
       <div className="w-[90px] ml-[16px] mb-[38px]">
         <Logo />
       </div>

@@ -94,11 +94,11 @@ const ModalCreatePost: React.FC<ModalCreatePostProps> = ({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ml-[243.8px] px-[15px]"
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ml-[243.8px] px-[15px] "
       // onClick={onClose} // Закрыть модалку при клике по фону
     >
       <div
-        className="bg-color-light w-[914px] h-[564px] rounded-[12px] shadow-lg relative overflow-hidden z-60"
+        className="bg-color-light w-[914px] h-[564px] rounded-[12px] shadow-lg relative overflow-hidden"
         onClick={(e) => e.stopPropagation()} // Останавливаем всплытие события, чтобы модалка не закрывалась при клике внутри
       >
         {/* Header */}

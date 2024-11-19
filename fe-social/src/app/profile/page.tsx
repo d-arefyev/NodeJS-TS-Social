@@ -4,14 +4,15 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { $api } from "../api/api";
 import Profile from "../profile/Profile";
-import ModalPost from "../modal/ModalPost";
+import ModalPost from "../modal/ModalPost"; // Импортируем ModalPost
 
 const ProfilePage = ({ params }: { params: { userId: string } }) => {
   const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [selectedPost, setSelectedPost] = useState<any | null>(null); 
+  const [selectedPost, setSelectedPost] = useState<any | null>(null); // Состояние для выбранного поста
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Состояние для отображения модалки
 
-  // Функция для загрузки постов пользователя
+  // Загружаем посты пользователя
   const getPosts = async () => {
     try {
       const response = await $api.get(`/post/all`);
@@ -24,41 +25,38 @@ const ProfilePage = ({ params }: { params: { userId: string } }) => {
     }
   };
 
-  // Загружаем посты при изменении userId
   useEffect(() => {
-    getPosts();
+    getPosts(); // Загружаем данные при изменении userId
   }, [params.userId]);
 
-  // Открытие модалки при клике на пост
-  const handlePostClick = (post: any) => {
-    setSelectedPost(post);
+  // Открытие модалки по клику на пост
+  const handleOpenModal = (post: any) => {
+    setSelectedPost(post); // Устанавливаем выбранный пост
+    setIsModalOpen(true); // Открываем модалку
   };
 
   // Закрытие модалки
   const handleCloseModal = () => {
-    setSelectedPost(null);
+    setIsModalOpen(false);
+    setSelectedPost(null); // Очищаем выбранный пост
   };
 
   return (
     <div className="globalContainer flex flex-col max-w-[975px] py-[50px]">
-      {/* Профиль пользователя */}
+      {/* User Profile */}
       <div className="flex self-start">
-        <Profile userId={params.userId} />
+        <Profile userId={params.userId} /> {/* Передаем userId в компонент Profile */}
       </div>
 
-      {/* Список постов */}
+      {/* PostList */}
       <div className="mt-[80px]">
         {isLoading ? (
           <div>Loading posts...</div>
         ) : (
           <div className="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-[4px]">
             {posts.map((post) => (
-              <div
-                key={post._id}
-                className="w-full relative cursor-pointer"
-                onClick={() => handlePostClick(post)} // Обработчик клика
-              >
-                <div className="w-full h-0 pb-[100%] relative">
+              <div key={post._id} className="w-full relative">
+                <div className="w-full h-0 pb-[100%] relative cursor-pointer" onClick={() => handleOpenModal(post)}>
                   <Image
                     src={post.image_url}
                     alt="Post Image"
@@ -73,11 +71,12 @@ const ProfilePage = ({ params }: { params: { userId: string } }) => {
         )}
       </div>
 
-      {/* Модалка для выбранного поста */}
-      {selectedPost && (
+      {/* Открытие модалки, если выбран пост */}
+      {isModalOpen && selectedPost && (
         <ModalPost
-          post={selectedPost} // Передаем данные выбранного поста
-          onClose={handleCloseModal} // Передаем функцию для закрытия модалки
+          post={selectedPost}
+          userProfile={{ _id: params.userId, username: "user", profile_image: "", posts_count: posts.length }} // Передаем профиль пользователя
+          onClose={handleCloseModal}
         />
       )}
     </div>
@@ -91,7 +90,7 @@ export default ProfilePage;
 
 
 
-// // все работает отлично
+// // // // работает, но нет вызова ModalPost
 // "use client";
 
 // import React, { useEffect, useState } from "react";
