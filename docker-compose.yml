@@ -5,7 +5,7 @@ services:
     build:
       context: ./be-social
       dockerfile: dockerfile
-    container_name: be-ichgram
+    container_name: be-social
     ports:
       - "5000:5000"
       - "5005:5005"
@@ -37,7 +37,7 @@ services:
     build:
       context: ./fe-social
       dockerfile: dockerfile
-    container_name: fe-ichgram
+    container_name: fe-social
     ports:
       - "3000:3000"
 
