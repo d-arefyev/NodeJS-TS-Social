@@ -1,0 +1,64 @@
+# version: "3.9"
+
+services:
+  be-ichgram:
+    build:
+      context: ./be-social
+      dockerfile: dockerfile
+    container_name: be-ichgram
+    ports:
+      - "5000:5000"
+      - "5005:5005"
+
+    # // нельзя публиковать env таким образом
+    # env_file: 
+    #   - be-social/.env
+
+    # Зависимости (приложения, которые запускаются в связке с основным приложением)
+    # depends_on:
+    #   - mongo
+
+    # // env таким образом не выгружается
+    # volumes: 
+    #   - .env:/app/.env
+
+    #     // Пример создания healthcheck, который будет корректно запускать приложение в доккере
+    # healthcheck:
+    #       test: ["CMD", "curl","-XGET", "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=650s&pretty"]
+    #       interval: 30s
+    #       timeout: 5m
+    #       retries: 30
+    # depends_on:
+    #       elasticsearch:
+    #           condition: service_healthy
+
+
+  fe-ichgram:
+    build:
+      context: ./fe-social
+      dockerfile: dockerfile
+    container_name: fe-ichgram
+    ports:
+      - "3000:3000"
+
+# Настройка БД
+#   mongo-database:
+#     container_name: mongo-database
+#     image: mongo:7
+#     restart: always
+#     ports:
+#       - 27017:27017
+#     # разрешаем подключиться к БД откуда угодно 0.0.0.0
+#     command: --auth --bind_ip 0.0.0.0
+#     environment:
+#        MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+#        MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+#        MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+#     env_file:
+#       - .env
+#     # Дублирование БД параллельно на машине (для случая потери БД на удаленном сервере)
+#     volumes:
+#       - ./data/db:/data/db
+
+# volumes:
+#   mongo-data:

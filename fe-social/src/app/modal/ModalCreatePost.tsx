@@ -8,10 +8,11 @@ import ModalConfirm from "../modal/ModalConfirm";
 import Notification from "../modal/Notification";
 import UploadIcon from "../atoms/UploadIcon";
 import EmojiPicker from "../components/EmojiPicker";
+import EmojiIcon from "../atoms/EmojiIcon";
 
 interface ModalCreatePostProps {
   onClose: () => void;
-  profileImage: string; 
+  profileImage: string;
   username: string;
 }
 
@@ -32,6 +33,7 @@ const ModalCreatePost: React.FC<ModalCreatePostProps> = ({
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
   // Извлекаем данные пользователя из localStorage
   useEffect(() => {
@@ -94,7 +96,7 @@ const ModalCreatePost: React.FC<ModalCreatePostProps> = ({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ml-[243.8px] px-[15px] "
+      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ml-[243.8px] px-[15px]"
       // onClick={onClose} // Закрыть модалку при клике по фону
     >
       <div
@@ -180,16 +182,28 @@ const ModalCreatePost: React.FC<ModalCreatePostProps> = ({
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Что нового сегодня?"
                 maxLength={1000}
-                className="w-full p-[16px] border-b-[1px] border-color-gray resize-none mb-[8px] flex-grow"
+                className="w-full p-[16px] border-b-[1px] border-color-gray resize-none flex-grow"
               />
-              <div className="text-right text-[12px] text-color-dark-gray mr-[16px] placeholder:text-color-dark-gray">
-                {content.length}/1000
-              </div>
 
               {/* Emoji Section */}
-              <div className="flex flex-wrap gap-2 p-[12px]">
-                <EmojiPicker onEmojiClick={handleEmojiClick} />
+              <div className="flex flex-wrap justify-between items-center p-[16px]">
+                <button
+                  onClick={() => setShowEmojiPicker((prev) => !prev)}
+                  className="w-[20px]"
+                >
+                  <EmojiIcon />
+                </button>
+                <div className="text-right text-[12px] text-color-dark-gray placeholder:text-color-dark-gray">
+                    {content.length}/1000
+                  </div>
               </div>
+
+              {/* Позиционируем EmojiPicker, чтобы он не перекрывал другие элементы */}
+              {showEmojiPicker && (
+                <div className="bottom-[70px] w-full p-[12px]">
+                  <EmojiPicker onEmojiClick={handleEmojiClick} />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -218,11 +232,8 @@ const ModalCreatePost: React.FC<ModalCreatePostProps> = ({
 
 export default ModalCreatePost;
 
-
-
-
-// все работает хорошо, но не видно сайдбара
-// "use client"
+// все работает как надо
+// "use client";
 
 // import React, { useEffect, useState } from "react";
 // import { $api } from "../api/api";
@@ -235,7 +246,7 @@ export default ModalCreatePost;
 
 // interface ModalCreatePostProps {
 //   onClose: () => void;
-//   profileImage: string; 
+//   profileImage: string;
 //   username: string;
 // }
 
@@ -317,10 +328,13 @@ export default ModalCreatePost;
 //   };
 
 //   return (
-//     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1000]">
+//     <div
+//       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 ml-[243.8px] px-[15px] "
+//       // onClick={onClose} // Закрыть модалку при клике по фону
+//     >
 //       <div
 //         className="bg-color-light w-[914px] h-[564px] rounded-[12px] shadow-lg relative overflow-hidden"
-//         onClick={(e) => e.stopPropagation()}
+//         onClick={(e) => e.stopPropagation()} // Останавливаем всплытие события, чтобы модалка не закрывалась при клике внутри
 //       >
 //         {/* Header */}
 //         <div className="flex justify-between items-center h-[43px] border-b-[1px] border-color-gray">
@@ -368,7 +382,7 @@ export default ModalCreatePost;
 //             {/* Avatar and Cancel Button */}
 //             <div className="flex items-center w-full p-[16px]">
 //               <div className="relative w-[36px] h-[36px]">
-//               <Image
+//                 <Image
 //                   src={userProfile?.profile_image || "/default-avatar.png"}
 //                   alt="Profile Avatar"
 //                   width={36}

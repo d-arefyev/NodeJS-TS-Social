@@ -10,6 +10,7 @@ import searchRoutes from './routes/searchRoutes.js';
 import likeRoutes from './routes/likeRoutes.js';
 import followRoutes from './routes/followRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import commentLikesRoutes from "./routes/likeCommentsRoutes.js";
 
 
 dotenv.config()
@@ -38,6 +39,7 @@ app.use('/api/search', searchRoutes);
 app.use('/api/likes', likeRoutes);
 app.use('/api/follow', followRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use("/api/comment-likes", commentLikesRoutes);
 
 // Экспорт приложения для использования в server.js
 export default app;

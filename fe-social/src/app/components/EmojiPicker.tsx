@@ -2,26 +2,70 @@ import React, { useState } from "react";
 
 // Список эмодзи
 const emojis = [
-  "😂", "😍", "😢", "👏", "🔥", "🥳", "❤️", "🤔", "😘", "🎉", "😆", "😊", "😁",
-  "😎", "🤗", "🙌", "👌", "👍", "💪", "🥰", "😜", "🤩", "🤯", "🥺", "😅", "🤣",
-  "😋", "😇", "🤤", "😈", "🥴", "😏", "🤓", "🙄", "😩", "🤥", "😴", "💀", "👻",
-  "😳", "😤", "😱", "💩", "🤡"
+  "😂",
+  "😍",
+  "😢",
+  "👏",
+  "🔥",
+  "🥳",
+  "❤️",
+  "🤔",
+  "😘",
+  "🎉",
+  "😆",
+  "😊",
+  "😁",
+  "😎",
+  "🤗",
+  "🙌",
+  "👌",
+  "👍",
+  "💪",
+  "🥰",
+  "😜",
+  "🤩",
+  "🤯",
+  "🥺",
+  "😅",
+  "🤣",
+  "😋",
+  "😇",
+  "🤤",
+  "😈",
+  "🥴",
+  "😏",
+  "🤓",
+  "🙄",
+  "😩",
+  "🤥",
+  "😴",
+  "💀",
+  "👻",
+  "😳",
+  "😤",
+  "😱",
+  "💩",
+  "🤡",
+  "🤠",
+  "🤑",
+  "🤡",
+  "👀",
 ];
 
 interface EmojiPickerProps {
-  onEmojiClick: (emoji: string) => void; 
+  onEmojiClick: (emoji: string) => void;
 }
 
 const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiClick }) => {
   return (
     <div className="flex w-full">
       {/* Список эмодзи, который отображается внутри контейнера */}
-      <div className="w-full grid grid-cols-10 gap-[4px]">
+      <div className="w-full grid grid-cols-12 gap-[4px]">
         {emojis.map((emoji, index) => (
           <div
             key={index}
             className="flex items-center justify-center text-xl cursor-pointer"
-            onClick={() => onEmojiClick(emoji)} 
+            onClick={() => onEmojiClick(emoji)}
           >
             {emoji}
           </div>
@@ -32,10 +76,6 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ onEmojiClick }) => {
 };
 
 export default EmojiPicker;
-
-
-
-
 
 // import React, { useState } from "react";
 

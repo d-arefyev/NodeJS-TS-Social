@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { $api } from "../api/api";
 import PostItem from "./PostItem";
+import ModalPost from "../modal/ModalPost";  // Импортируем ModalPost
 
 // Типизация данных для поста
 interface Post {
@@ -30,6 +31,10 @@ const PostsList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  
+  // Состояние для модалки
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   // Загружаем информацию о текущем пользователе
   useEffect(() => {
@@ -89,22 +94,51 @@ const PostsList: React.FC = () => {
     console.log(`User is toggling follow status for ${targetUserId}: ${newFollowStatus}`);
   };
 
+  // Открытие модалки
+  const handleOpenModal = (post: Post) => {
+    setSelectedPost(post); // Устанавливаем выбранный пост
+    setIsModalOpen(true); // Открываем модалку
+  };
+
+  // Закрытие модалки
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedPost(null); // Очищаем выбранный пост
+  };
+
   if (loading) return <p>Loading posts...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <ul className="w-full grid gap-y-[14px] gap-x-[40px] lg:grid-cols-2 md:grid-cols-1">
-      {shuffledPosts.map((post) => (
-        <PostItem
-          key={post._id}
-          item={post} // Передаем пост с полными данными
-          likesCount={likesCounts[post._id] || 0}
-          setLikesCount={handleLikesCountChange}
-          onFollowChange={(newFollowStatus) => handleFollowChange(post.user_id as string, newFollowStatus)} // Передаем только обработчик
-          isAuthenticated={isAuthenticated} // Передаем статус авторизации
+    <>
+      <ul className="w-full grid gap-y-[14px] gap-x-[40px] lg:grid-cols-2 md:grid-cols-1">
+        {shuffledPosts.map((post) => (
+          <PostItem
+            key={post._id}
+            item={post} // Передаем пост с полными данными
+            likesCount={likesCounts[post._id] || 0}
+            setLikesCount={handleLikesCountChange}
+            onFollowChange={(newFollowStatus) => handleFollowChange(post.user_id as string, newFollowStatus)} // Передаем только обработчик
+            isAuthenticated={isAuthenticated} // Передаем статус авторизации
+            onClick={() => handleOpenModal(post)} // Обработчик для открытия модалки
+          />
+        ))}
+      </ul>
+
+      {/* Открытие модалки, если выбран пост */}
+      {isModalOpen && selectedPost && (
+        <ModalPost
+          post={selectedPost}
+          userProfile={{
+            _id: selectedPost.user_id as string,
+            user_name: selectedPost.user_name,
+            profile_image: selectedPost.profile_image,
+            posts_count: posts.length,
+          }}
+          onClose={handleCloseModal}
         />
-      ))}
-    </ul>
+      )}
+    </>
   );
 };
 
@@ -112,15 +146,12 @@ export default PostsList;
 
 
 
-
-
-
-// // загружается все, только лайки доступны ото всюду
 // "use client";
 
 // import React, { useEffect, useState, useCallback } from "react";
 // import { $api } from "../api/api";
 // import PostItem from "./PostItem";
+// import ModalPost from "../modal/ModalPost";  // Импортируем ModalPost
 
 // // Типизация данных для поста
 // interface Post {
@@ -147,6 +178,20 @@ export default PostsList;
 //   const [shuffledPosts, setShuffledPosts] = useState<Post[]>([]);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState<string | null>(null);
+//   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  
+//   // Состояние для модалки
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+//   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+
+//   // Загружаем информацию о текущем пользователе
+//   useEffect(() => {
+//     const storedUser = localStorage.getItem("user");
+//     if (storedUser) {
+//       const userData = JSON.parse(storedUser);
+//       setIsAuthenticated(true);
+//     }
+//   }, []);
 
 //   // Загружаем посты при монтировании компонента
 //   useEffect(() => {
@@ -197,21 +242,51 @@ export default PostsList;
 //     console.log(`User is toggling follow status for ${targetUserId}: ${newFollowStatus}`);
 //   };
 
+//   // Открытие модалки
+//   const handleOpenModal = (post: Post) => {
+//     setSelectedPost(post); // Устанавливаем выбранный пост
+//     setIsModalOpen(true); // Открываем модалку
+//   };
+
+//   // Закрытие модалки
+//   const handleCloseModal = () => {
+//     setIsModalOpen(false);
+//     setSelectedPost(null); // Очищаем выбранный пост
+//   };
+
 //   if (loading) return <p>Loading posts...</p>;
 //   if (error) return <p>Error: {error}</p>;
 
 //   return (
-//     <ul className="w-full grid gap-y-[14px] gap-x-[40px] lg:grid-cols-2 md:grid-cols-1">
-//       {shuffledPosts.map((post) => (
-//         <PostItem
-//           key={post._id}
-//           item={post} // Передаем пост с полными данными
-//           likesCount={likesCounts[post._id] || 0}
-//           setLikesCount={handleLikesCountChange}
-//           onFollowChange={(newFollowStatus) => handleFollowChange(post.user_id as string, newFollowStatus)} // Передаем только обработчик
+//     <>
+//       <ul className="w-full grid gap-y-[14px] gap-x-[40px] lg:grid-cols-2 md:grid-cols-1">
+//         {shuffledPosts.map((post) => (
+//           <PostItem
+//             key={post._id}
+//             item={post} // Передаем пост с полными данными
+//             likesCount={likesCounts[post._id] || 0}
+//             setLikesCount={handleLikesCountChange}
+//             onFollowChange={(newFollowStatus) => handleFollowChange(post.user_id as string, newFollowStatus)} // Передаем только обработчик
+//             isAuthenticated={isAuthenticated} // Передаем статус авторизации
+//             onClick={() => handleOpenModal(post)} // Обработчик для открытия модалки
+//           />
+//         ))}
+//       </ul>
+
+//       {/* Открытие модалки, если выбран пост */}
+//       {isModalOpen && selectedPost && (
+//         <ModalPost
+//           post={selectedPost}
+//           userProfile={{
+//             _id: selectedPost.user_id as string,
+//             user_name: selectedPost.user_name,
+//             profile_image: selectedPost.profile_image,
+//             posts_count: posts.length,
+//           }}
+//           onClose={handleCloseModal}
 //         />
-//       ))}
-//     </ul>
+//       )}
+//     </>
 //   );
 // };
 
