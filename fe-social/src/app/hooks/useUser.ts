@@ -69,7 +69,7 @@ const useUser = (): UseUserResult => {
     const formData = new FormData();
     formData.append("username", username);
     formData.append("bio", bio);
-    formData.append("bio_website", bio_website);  // Добавляем bio_website
+    formData.append("bio_website", bio_website);
 
     if (profileImage) {
       formData.append("profile_image", profileImage);

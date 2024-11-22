@@ -147,7 +147,7 @@ const PostItem = ({
             alt="Post Image"
             width={403}
             height={505}
-            className="w-full max-h-[580px] min-h-[580px] object-cover rounded-[4px]"
+            className="w-full max-h-[580px] min-h-[580px] object-fit rounded-[4px]"
           />
         </div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { $api } from "../api/api"; // Используем импортированное API
+import { $api } from "../api/api"; 
 
 type FollowUserResponse = {
   id: string;
