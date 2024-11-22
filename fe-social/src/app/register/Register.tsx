@@ -54,7 +54,8 @@ const Register = () => {
   };
 
   return (
-    <div className="flex justify-center items-start mt-[80px] gap-[32px]">
+    <div className="flex justify-center items-start pt-[85px] gap-[32px] bg-cover bg-center h-screen m-0"
+      style={{ backgroundImage: 'url("/main-bg.jpg")' }}>
       <div className="w-[350px] flex flex-col justify-center gap-[10px]">
         <div className="flex flex-col items-center px-[40px] pt-[53px] pb-[32px] bg-color-light border-[1px] border-color-gray mt-[10px]">
           <div className="mb-[20px] text-center rounded-[1px]">

@@ -70,12 +70,15 @@ const ModalPost: React.FC<ModalPostProps> = ({
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
+        console.log("Загруженный пользователь:", parsedUser);
         setStoredUserProfile(parsedUser);
       } catch (error) {
         console.error("Ошибка при парсинге данных из localStorage:", error);
       }
+    } else if (userProfile) {
+      setStoredUserProfile(userProfile); // Передача через props
     }
-  }, []);
+  }, [userProfile]);
 
   useEffect(() => {
     setComments(initialComments || []);
@@ -329,4 +332,3 @@ const ModalPost: React.FC<ModalPostProps> = ({
 };
 
 export default ModalPost;
-

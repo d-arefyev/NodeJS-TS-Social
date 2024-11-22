@@ -93,8 +93,7 @@ const OtherProfile: React.FC<OtherProfileProps> = ({
               userId={userId}
               targetUserId={userProfile._id}
               onFollowChange={handleFollowChange} // Обработчик для изменения подписки
-              className="py-[6px] px-[50px] bg-color-accent hover:bg-color-dark text-[14px] font-semibold text-color-light rounded-[8px] hover:text-color-light"
-            />
+              className="py-[6px] px-[50px] bg-color-accent hover:bg-color-dark text-[14px] font-semibold text-color-light rounded-[8px] hover:text-color-light" isFollow={false}            />
             {/* Кнопка сообщений */}
             <Link
               href={`/message/${userProfile._id}`}

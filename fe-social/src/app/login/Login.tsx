@@ -34,7 +34,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-start mt-[85px] gap-[32px]">
+    <div
+      className="flex justify-center items-start pt-[85px] gap-[32px] bg-cover bg-center h-screen m-0"
+      style={{ backgroundImage: 'url("/main-bg.jpg")' }}
+    >
       {/* Picture */}
       <div>
         <Image
@@ -53,7 +56,10 @@ const Login = () => {
           <div className="mb-[32px] text-center rounded-[1px]">
             <Logo />
           </div>
-          <form onSubmit={handleSubmit} className="flex flex-col w-full gap-[6px]">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col w-full gap-[6px]"
+          >
             <Input
               type="email"
               placeholder="Email"
@@ -94,7 +100,10 @@ const Login = () => {
         <div className="w-full h-[63px] flex justify-center items-center bg-color-light border-[1px] border-color-gray">
           <span className="text-[14px]">
             Don't have an account?{" "}
-            <Link href="/register" className="text-[14px] font-semibold text-color-accent">
+            <Link
+              href="/register"
+              className="text-[14px] font-semibold text-color-accent"
+            >
               Sign Up
             </Link>
           </span>
@@ -105,9 +114,6 @@ const Login = () => {
 };
 
 export default Login;
-
-
-
 
 // "use client";
 
@@ -211,9 +217,3 @@ export default Login;
 // };
 
 // export default Login;
-
-
-
-
-
-

@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import ProtectedWrapper from "./components/ProtectedWrapper"; 
 import "./globals.css";
 
+
 interface RootLayoutProps {
   children: ReactNode;
 }

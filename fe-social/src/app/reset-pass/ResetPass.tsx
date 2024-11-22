@@ -30,12 +30,15 @@ const ResetPassword = () => {
 
   return (
     <div>
-      <div className="flex h-[60px] border-b-[1px] border-color-gray items-center px-[50px]">
-      <div className="w-[90px]">
-        <Logo />
+      <div className="absolute w-full bg-color-light t-0 l-0 flex h-[60px] border-b-[1px] border-color-gray items-center px-[50px]">
+        <div className="w-[90px]">
+          <Logo />
+        </div>
       </div>
-      </div>
-      <div className="flex justify-center items-start mt-[80px] gap-[32px]">
+      <div
+        className="flex justify-center items-start pt-[85px] gap-[32px] bg-cover bg-center h-screen m-0"
+        style={{ backgroundImage: 'url("/main-bg.jpg")' }}
+      >
         {/* Form */}
         <div className="w-[390px] flex flex-col justify-center gap-[10px]">
           <div className="flex flex-col items-center px-[45px] pt-[25px] pb-[20px] bg-color-light border-[1px] border-color-gray mt-[12px]">
